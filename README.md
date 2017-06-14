@@ -1,7 +1,4 @@
-[![Build Status](https://travis-ci.org/kodi-pvr/pvr.iptvsimple.svg?branch=master)](https://travis-ci.org/kodi-pvr/pvr.iptvsimple)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
-
-# IPTV Simple PVR
+# IPTV Ksys PVR
 IPTV Live TV and Radio PVR client addon for [Kodi] (http://kodi.tv)
 
 ## Build instructions
