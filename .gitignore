@@ -1,0 +1,23 @@
+# build artifacts
+build/
+debian/changelog
+debian/files
+debian/kodi-pvr-ksys-dbg.debhelper.log
+debian/kodi-pvr-ksys-dbg.substvars
+debian/kodi-pvr-ksys-dbg/
+debian/kodi-pvr-ksys.debhelper.log
+debian/kodi-pvr-ksys.postinst.debhelper
+debian/kodi-pvr-ksys.postrm.debhelper
+debian/kodi-pvr-ksys.substvars
+debian/kodi-pvr-ksys/
+debian/tmp/
+obj-x86_64-linux-gnu/
+pvr.ksys/addon.xml
+
+# clion
+.idea/
+
+# Eclipse/CDT
+.cproject
+.project
+.settings/

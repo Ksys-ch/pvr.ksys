@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <!-- K-SYS -->
+  <category label="30050">
+    <setting id="sep4" label="30050" type="lsep"/>
+    <setting id="location_ksys" type="labelenum" label="30051" lvalues="30052|30053" />
+  </category>
+</settings>
