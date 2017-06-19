@@ -42,7 +42,6 @@ PVRKauth::PVRKauth(PVRKsysAPI *api)
   p_jwt.refreshToken          = "";
   p_jwt.expireAccessTokenDate = 0;
 
-  curl_global_init(CURL_GLOBAL_DEFAULT);
   loadJwt();
 }
 
@@ -54,7 +53,6 @@ PVRKauth::PVRKauth(PVRKsysAPI *api)
 PVRKauth::~PVRKauth(void)
 {
   log(LOG_DEBUG, "PVRPVRKauth", "Destruction");
-  curl_global_cleanup();
 }
 
 /*!
@@ -176,7 +174,7 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
 
   time(&now_date);
 
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     json j = json::parse(buffer);
     p_jwt.expireAccessTokenDate = now_date + j.value("expires_in", 0);
@@ -228,7 +226,7 @@ PVRJwt PVRKauth::getJWTRefreshToken()
   CURLcode code = p_api->requestPOST(getURLKAuth("/v1/access_token"), strCredentials, headers, &buffer, &http_code, false);
   time(&now_date);
 
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     json j = json::parse(buffer);
     p_jwt.expireAccessTokenDate = now_date + j.value("expires_in", 0);

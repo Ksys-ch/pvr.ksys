@@ -276,7 +276,7 @@ std::string PVRKsysAPI::getChannels(std::string location)
 
     code = requestGET(getURLKTV("/tv/map/" + location + "/"), headers, &buffer, &http_code);
 
-    if(code == CURLE_OK && http_code == 200)
+    if(http_code == 200)
     {
       json j = json::parse(buffer);
       if (j.find("content") != j.end()) {
@@ -324,7 +324,7 @@ std::string PVRKsysAPI::getRadios()
     headers = curl_slist_append(headers, XAuthenticate.c_str());*/
 
     code = requestGET(getURLKTV("/radio/map/"), headers, &buffer, &http_code);
-    if(code == CURLE_OK && http_code == 200)
+    if(http_code == 200)
     {
       json j = json::parse(buffer);
       if (j.find("content") != j.end()) {
@@ -374,7 +374,7 @@ std::string PVRKsysAPI::getEPGForChannel(int channel, time_t iStart, time_t iEnd
   
 
   code = requestGET(getURLKTV("/tv/guide/" + std::to_string(channel) + "/" + timeStampToDate(iStart) + "/" + std::to_string(iEnd-iStart) + "/"), headers, &buffer, &http_code);
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     json j = json::parse(buffer);
     if (j.find("content") != j.end()) {
@@ -421,7 +421,7 @@ std::string PVRKsysAPI::getCatchupForChannel(int channel, int timestamp)
   long http_code = 0;
 
   code = requestGET(getURLKTV("/tv/catchup/" + std::to_string(channel) + "/" + std::to_string(timestamp) + "/"), headers, &buffer, &http_code);
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     return buffer;
   }
@@ -465,7 +465,7 @@ bool PVRKsysAPI::checkAdultCode(std::string adultCode)
   
   CURLcode code = requestPOST(getURLKTV("/pin/adult/check/"), strCredentials, headers, &buffer, &http_code);
 
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     if (http_code == 200) {
       return true;
@@ -500,7 +500,7 @@ bool PVRKsysAPI::sendAdultCode()
   long http_code = 0;
   
   code = requestGET(getURLKTV("/pin/send/"), headers, &buffer, &http_code);
-  if(code == CURLE_OK && http_code == 200)
+  if(http_code == 200)
   {
     return true;
   }
@@ -529,7 +529,7 @@ bool PVRKsysAPI::sendPinCode()
   CURLcode code;
   long http_code = 0;
   code = requestGET(getURLSick("/client/" + getSimAPIKey() + "/pin/send/"), NULL, &buffer, &http_code);
-  if(code == CURLE_OK && (http_code == 200 || http_code == 204))
+  if((http_code == 200 || http_code == 204))
   {
     return true;
   }
@@ -565,7 +565,7 @@ std::string PVRKsysAPI::getNewViewToken(int channel, std::string adultCode)
 
   code = requestGET(url, NULL, &buffer, &http_code);
 
-  if(code == CURLE_OK && (http_code == 200 || http_code == 204))
+  if((http_code == 200 || http_code == 204))
   {
     json j = json::parse(buffer);
     p_viewToken = j["content"];
@@ -617,7 +617,7 @@ CURLResp PVRKsysAPI::getM3u8Live(std::string url)
 
   code = requestGET(url, NULL, &buffer, &http_code, true);
 
-  if(code == CURLE_OK)
+  if(http_code == 200)
   {
     tmpCurlResp.content = buffer;
     tmpCurlResp.httpCode = http_code;
