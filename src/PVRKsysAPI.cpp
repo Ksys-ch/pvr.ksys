@@ -163,6 +163,15 @@ CURLcode PVRKsysAPI::requestGET(std::string URL, struct curl_slist *headers, std
       if(res == CURLE_OK) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
       }
+      else if(res == 6 || res == 7)
+      {
+        //Probleme de co internet
+        log(LOG_ERROR, "PVRKsysAPI", "Impossible de joindre le serveur, prochaine tentative dans %d seconde(s) : %s", 1, URL.c_str());
+        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] Problème de connexion internet");
+        usleep(1000000);
+        return requestGET(URL, headers, buffer, http_code, false);
+      }
+
       curl_easy_cleanup(curl);
     }
 
@@ -237,6 +246,14 @@ CURLcode PVRKsysAPI::requestPOST(std::string URL, std::string postData, struct c
       if(res == CURLE_OK) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
       }
+      else if(res == 6 || res == 7)
+      {
+        //Probleme de co internet
+        log(LOG_ERROR, "PVRKsysAPI", "Impossible de joindre le serveur, prochaine tentative dans %d seconde(s) : %s", 1, URL.c_str());
+        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] Problème de connexion internet");
+        usleep(1000000);
+        return requestPOST(URL, postData, headers, buffer, http_code, false);
+      }
       curl_easy_cleanup(curl);
     }
     //curl_global_cleanup();
@@ -287,14 +304,14 @@ std::string PVRKsysAPI::getChannels(std::string location)
         if (j.find("message") != j.end()) {
           //LE serveur nous indique une erreur dans message
           std::string message = j["message"];
-          log(LOG_ERROR, "PVRKsysAPI", "RESP_SERV Impossible de récupérer les chaines : %s", message.c_str());
-          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] RESP_SERV Impossible de récupérer les chaines");
+          log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer les chaines : %s", message.c_str());
+          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer les chaines");
         }
         else
         {
           //Le serveur répond une erreur, mais sans message ?
-          log(LOG_ERROR, "PVRKsysAPI", "SERV_UNKNOWN Impossible de récupérer le les chaines");
-          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] SERV_UNKNOWN Impossible de récupérer les chaines");
+          log(LOG_ERROR, "PVRKsysAPI", "BAD_RESPONSE Impossible de récupérer le les chaines");
+          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] BAD_RESPONSE Impossible de récupérer les chaines");
         }
       }
     }
@@ -335,14 +352,14 @@ std::string PVRKsysAPI::getRadios()
         if (j.find("message") != j.end()) {
           //LE serveur nous indique une erreur dans message
           std::string message = j["message"];
-          log(LOG_ERROR, "PVRKsysAPI", "RESP_SERV Impossible de récupérer les radios : %s", message.c_str());
-          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] RESP_SERV Impossible de récupérer les radios");
+          log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer les radios : %s", message.c_str());
+          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer les radios");
         }
         else
         {
           //Le serveur répond une erreur, mais sans message ?
-          log(LOG_ERROR, "PVRKsysAPI", "SERV_UNKNOWN Impossible de récupérer le les radios");
-          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] SERV_UNKNOWN Impossible de récupérer les radios");
+          log(LOG_ERROR, "PVRKsysAPI", "BAD_RESPONSE Impossible de récupérer le les radios");
+          XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] BAD_RESPONSE Impossible de récupérer les radios");
         }
       }
     }
@@ -385,14 +402,14 @@ std::string PVRKsysAPI::getEPGForChannel(int channel, time_t iStart, time_t iEnd
       if (j.find("message") != j.end()) {
         //LE serveur nous indique une erreur dans message
         std::string message = j["message"];
-        log(LOG_ERROR, "PVRKsysAPI", "RESP_SERV Impossible de récupérer le guide : %s", message.c_str());
-        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] RESP_SERV Impossible de récupérer le guide");
+        log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer le guide : %s", message.c_str());
+        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer le guide");
       }
       else
       {
         //Le serveur répond une erreur, mais sans message ?
-        log(LOG_ERROR, "PVRKsysAPI", "SERV_UNKNOWN Impossible de récupérer le le guide");
-        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] SERV_UNKNOWN Impossible de récupérer le guide");
+        log(LOG_ERROR, "PVRKsysAPI", "BAD_RESPONSE Impossible de récupérer le le guide");
+        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] BAD_RESPONSE Impossible de récupérer le guide");
       }
     }
   }
@@ -476,8 +493,8 @@ bool PVRKsysAPI::checkAdultCode(std::string adultCode)
       if (j.find("message") != j.end()) {
         //LE serveur nous indique une erreur dans message
         std::string message = j["message"];
-        log(LOG_ERROR, "PVRKsysAPI", "RESP_SERV Impossible de vérifier le code adulte : %s", message.c_str());
-        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] RESP_SERV de vérifier le code adulte");
+        log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de vérifier le code adulte : %s", message.c_str());
+        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP de vérifier le code adulte");
       }
     }
   }

@@ -24,6 +24,7 @@
 #include "json.hpp"
 #include <curl/curl.h>
 #include "PVRKauth.h"
+#include "p8-platform/threads/threads.h"
 
 using json = nlohmann::json;
 
