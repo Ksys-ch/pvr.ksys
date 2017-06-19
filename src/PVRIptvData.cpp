@@ -124,7 +124,7 @@ PVRIptvData::~PVRIptvData(void)
 bool PVRIptvData::LoadPlayList(void)
 {
   std::string contentChannels;
-  contentChannels = m_api->getChannels(g_strLocationKsys, 1);
+  contentChannels = m_api->getChannels(g_strLocationKsys);
   if(!contentChannels.empty())
   {
     PVRIptvChannel tmpChannel;
@@ -211,7 +211,7 @@ bool PVRIptvData::LoadPlayList(void)
     }
   }
 
-  std::string contentRadios = m_api->getRadios(1);
+  std::string contentRadios = m_api->getRadios();
 
   if(!contentChannels.empty())
   {
@@ -275,7 +275,7 @@ PVR_ERROR PVRIptvData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       PVRIptvChannel &channel = m_channels.at(iChannelPtr);
       PVR_CHANNEL xbmcChannel;
       memset(&xbmcChannel, 0, sizeof(PVR_CHANNEL));
-      xbmcChannel.iUniqueId         = channel.num_ch;
+      xbmcChannel.iUniqueId         = channel.num_fr;
       xbmcChannel.bIsRadio          = false;
       xbmcChannel.iChannelNumber    = channel.num;
       strncpy(xbmcChannel.strChannelName, channel.name.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
@@ -321,7 +321,7 @@ bool PVRIptvData::GetChannel(const PVR_CHANNEL &channel, PVRIptvChannel &myChann
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
     PVRIptvChannel &thisChannel = m_channels.at(iChannelPtr);
-    if (thisChannel.num_ch == (int) channel.iUniqueId)
+    if (thisChannel.num_fr == (int) channel.iUniqueId)
     {
       if(thisChannel.subscription == false)
       {
@@ -429,7 +429,7 @@ PVR_ERROR PVRIptvData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHA
 PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   PVRIptvChannel *tmpChannel = findChannelById(channel.iUniqueId);
-  std::string contentEPG = m_api->getEPGForChannel(g_strLocationKsys, 1, tmpChannel->num_ch, iStart, iEnd);
+  std::string contentEPG = m_api->getEPGForChannel(tmpChannel->num_fr, iStart, iEnd);
 
     if(!contentEPG.empty())
     {
@@ -543,7 +543,7 @@ PVRIptvChannel * PVRIptvData::findChannelById(int idChannel)
   std::vector<PVRIptvChannel>::iterator it;
   for(it = m_channels.begin(); it < m_channels.end(); ++it)
   {
-    if (it->num_ch == idChannel)
+    if (it->num_fr == idChannel)
       return &*it;
   }
 
@@ -808,7 +808,7 @@ bool PVRIptvData::replayAvailable()
 {
   if(g_strLocationKsys ==  "CHE")
   {
-    std::string buffer = m_api->getCatchupForChannel(m_currentChannel->num_ch, getPlayingTime());
+    std::string buffer = m_api->getCatchupForChannel(m_currentChannel->num_fr, getPlayingTime());
   
     if(buffer != "")
       return true;
@@ -885,7 +885,7 @@ void PVRIptvData::loadReplay()
 
   std::string strPlaylistContent;
 
-  strPlaylistContent = m_api->getCatchupForChannel(m_currentChannel->num_ch, getPlayingTime());
+  strPlaylistContent = m_api->getCatchupForChannel(m_currentChannel->num_fr, getPlayingTime());
 
 
   std::stringstream stream(strPlaylistContent);

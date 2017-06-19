@@ -41,9 +41,9 @@ public:
 	std::string                       getURLKTV(std::string path);
 	std::string                       getURLSick(std::string path);
 	std::string 					  timeStampToDate(const time_t rawtime);
-	std::string                       getChannels(std::string location, int group);
-	std::string                       getRadios(int group);
-	std::string						  getEPGForChannel(std::string location, int channel, int group, time_t iStart, time_t iEnd);
+	std::string                       getChannels(std::string location);
+	std::string                       getRadios();
+	std::string						  getEPGForChannel(int channel, time_t iStart, time_t iEnd);
 	std::string						  getCatchupForChannel(int channel, int timestamp);
 	CURLcode                       	  requestGET(std::string path, struct curl_slist *headers, std::string *buffer, long *http_code, bool authHeader = true);
 	CURLcode                       	  requestPOST(std::string path, std::string postData, struct curl_slist *headers, std::string *buffer, long *http_code, bool authHeader = true);

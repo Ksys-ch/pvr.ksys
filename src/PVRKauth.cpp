@@ -151,6 +151,10 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
   char password[128];
   long http_code = 0;
 
+
+  username[0] = '\0';
+  password[0] = '\0';
+
   if(usernameDefault != "")
     strcpy (username,usernameDefault.c_str());
   else

@@ -34,11 +34,11 @@ g_strPasswordKsys
 
 /*
   URL de base pour l'API de KTV
-  PC ALex : 192.168.1.4:5000
+  PC ALex : 192.168.1.4:4000
   Testing : testing-wstv.k-sys.ch
   Prod : https://api-tv.k-sys.ch
 */
-#define KTV_URL                  "http://192.168.1.4:5000"
+#define KTV_URL                  "http://192.168.1.4:4000"
 #define SICK_URL                 "https://sicktv-api.caps.services"
 
 /*!
@@ -260,11 +260,9 @@ std::string PVRKsysAPI::timeStampToDate(const time_t rawtime)
 /*!
    * Récupérer sur le serveur KTV la liste des chaines disponibles
    * @param location : location de l'utilisateur CHE / FRA (Pour respectivement Suisse / France)
-   * @param group : group de chaine
    * @return string : le contenu de "content" du résultat de requête HTTP GET
-   * @remarks le group de chaine ne semble pas avoir d'importance pour le moment ?
 */
-std::string PVRKsysAPI::getChannels(std::string location, int group)
+std::string PVRKsysAPI::getChannels(std::string location)
 {
   log(LOG_DEBUG, "PVRKsysAPI", "demande de la liste des chaines");
 
@@ -276,7 +274,7 @@ std::string PVRKsysAPI::getChannels(std::string location, int group)
     /*std::string XAuthenticate = (std::string)"X-Authenticate: " + getToken();
     headers = curl_slist_append(headers, XAuthenticate.c_str());*/
 
-    code = requestGET(getURLKTV("/tv/map/" + location + "/" + std::to_string(group) + "/"), headers, &buffer, &http_code);
+    code = requestGET(getURLKTV("/tv/map/" + location + "/"), headers, &buffer, &http_code);
 
     if(code == CURLE_OK && http_code == 200)
     {
@@ -311,11 +309,9 @@ std::string PVRKsysAPI::getChannels(std::string location, int group)
 
 /*!
    * Récupérer sur le serveur KTV la liste des radios disponibles
-   * @param group : group de radios
    * @return string : le contenu de "content" du résultat de requête HTTP GET
-   * @remarks le group de radios ne semble pas avoir d'importance pour le moment ?
 */
-std::string PVRKsysAPI::getRadios(int group)
+std::string PVRKsysAPI::getRadios()
 {
   log(LOG_DEBUG, "PVRKsysAPI", "demande de la liste des radios");
 
@@ -327,7 +323,7 @@ std::string PVRKsysAPI::getRadios(int group)
     /*std::string XAuthenticate = (std::string)"X-Authenticate: " + getToken();
     headers = curl_slist_append(headers, XAuthenticate.c_str());*/
 
-    code = requestGET(getURLKTV("/radio/map/" + std::to_string(group) + "/"), headers, &buffer, &http_code);
+    code = requestGET(getURLKTV("/radio/map/"), headers, &buffer, &http_code);
     if(code == CURLE_OK && http_code == 200)
     {
       json j = json::parse(buffer);
@@ -361,17 +357,15 @@ std::string PVRKsysAPI::getRadios(int group)
 
 
 /*!
-   * Récupérer l'EPG d'une chaine sur le serveur KTV
-   * @param location : localisation (CHE / FRA)
-   * @param group : groupe 
+   * Récupérer l'EPG d'une chaine sur le serveur KTV*
    * @param channel : numéro de la chaine
    * @param iStart : date de début
    * @param iENd : date de fin
    * @return string : le contenu de "content" du résultat de requête HTTP GET
 */
-std::string PVRKsysAPI::getEPGForChannel(std::string location, int group, int channel, time_t iStart, time_t iEnd)
+std::string PVRKsysAPI::getEPGForChannel(int channel, time_t iStart, time_t iEnd)
 {
-  log(LOG_DEBUG, "PVRKsysAPI", "récupération de l'EPG pour la chaine numéro : %d de %d à %d - Location : %s", channel, iStart, iEnd, location.c_str());
+  log(LOG_DEBUG, "PVRKsysAPI", "récupération de l'EPG pour la chaine numéro : %d de %d à %d", channel, iStart, iEnd);
 
   struct curl_slist *headers = NULL;
   std::string buffer;
@@ -379,7 +373,7 @@ std::string PVRKsysAPI::getEPGForChannel(std::string location, int group, int ch
   long http_code = 0;
   
 
-  code = requestGET(getURLKTV("/tv/guide/" + location + "/" + std::to_string(group) + "/" + std::to_string(channel) + "/" + timeStampToDate(iStart) + "/" + std::to_string(iEnd-iStart) + "/"), headers, &buffer, &http_code);
+  code = requestGET(getURLKTV("/tv/guide/" + std::to_string(channel) + "/" + timeStampToDate(iStart) + "/" + std::to_string(iEnd-iStart) + "/"), headers, &buffer, &http_code);
   if(code == CURLE_OK && http_code == 200)
   {
     json j = json::parse(buffer);
