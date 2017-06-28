@@ -32,14 +32,12 @@ g_strUsernameKsys
 g_strPasswordKsys
 */
 
-/*
-  URL de base pour l'API de KTV
-  PC ALex : 192.168.1.4:4000
-  Testing : testing-wstv.k-sys.ch
-  Prod : https://api-tv.k-sys.ch
-*/
+#ifndef KTV_URL
 #define KTV_URL                  "https://testing-wstv.k-sys.ch"
+#endif
+#ifndef SICK_URL
 #define SICK_URL                 "https://sicktv-api.caps.services"
+#endif
 
 /*!
    * Fonction static qui est utilisé par CURL pour remplir le buffer avec le contenu d'une page web
