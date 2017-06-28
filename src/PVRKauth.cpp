@@ -24,7 +24,7 @@
 #include "client.h"
 #include "PVRKsysAPI.h"
 
-#define KAUTH_URL       "https://test-nico.k-net.fr/kauth"
+#define KAUTH_URL       "https://accounts.caps.services"
 #define JWT_SAVE_FILE   ".jwt"
 
 using namespace ADDON;
@@ -142,7 +142,7 @@ PVRJwt PVRKauth::getJWT()
    * @return le JWT récupéré ou NULL si on a échoué
 */
 PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
-{     
+{
   time_t now_date;
   std::string buffer;
   char username[128];
@@ -208,7 +208,7 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
    * @remark on appelle la méthode par Mot de passe si on échoue
 */
 PVRJwt PVRKauth::getJWTRefreshToken()
-{     
+{
   time_t now_date;
   std::string buffer;
 
