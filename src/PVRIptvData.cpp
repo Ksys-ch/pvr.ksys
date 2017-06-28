@@ -184,10 +184,10 @@ bool PVRIptvData::LoadPlayList(void)
       if (element["poster"].type() ==  json::value_t::string)
         tmpChannel.poster         = element["poster"];
 
-      if (element["url"].type() ==  json::value_t::string)
+      if (element["unicast"].type() ==  json::value_t::string)
       {
-        std::string url           = element["url"];
-        tmpChannel.url            = m_api->getURLKTV(url); //  + (std::string)"/" + m_api->getToken() + (std::string)"/" + (std::string)KEY_ACCESS_TV); // + "/ADULT CODE = ???"
+        std::string url           = element["unicast"];
+        tmpChannel.url            = m_api->getURLKTV(url);
       }
 
       if (element["urlBakcup"].type() ==  json::value_t::string)
@@ -207,6 +207,10 @@ bool PVRIptvData::LoadPlayList(void)
         tmpChannel.subscription = element["subscription"];
       }
 
+      if (tmpChannel.url.size() == 0)
+      {
+        log(LOG_ERROR, "PVRIPtvData", "no url on channel %s", tmpChannel.name.c_str());
+      }
       m_channels.push_back(tmpChannel);
     }
   }
