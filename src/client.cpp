@@ -372,8 +372,8 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
 
 bool OpenLiveStream(const PVR_CHANNEL &channel)
 {
-  log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
-
+  log(LOG_INFO, "client", "function %s is called", __FUNCTION__ );
+  log(LOG_INFO, "client", "%s channel.url = %s", __FUNCTION__, channel.strStreamURL);
   if (m_data)
   {
     m_isRadio = channel.bIsRadio;

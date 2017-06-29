@@ -190,6 +190,7 @@ bool PVRIptvData::LoadPlayList(void)
       {
         std::string url           = element["unicast"];
         tmpChannel.url            = m_api->getURLKTV(url);
+        log(LOG_DEBUG, "PVRIPtvData", "set url %s for %s", tmpChannel.url.c_str(), tmpChannel.name.c_str());
       }
 
       if (element["subscription"].type() ==  json::value_t::string)
@@ -323,7 +324,7 @@ bool PVRIptvData::GetChannel(const PVR_CHANNEL &channel, PVRIptvChannel &myChann
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
     PVRIptvChannel &thisChannel = m_channels.at(iChannelPtr);
-    if (thisChannel.num_fr == (int) channel.iUniqueId)
+    if (thisChannel.id == (int) channel.iUniqueId)
     {
       if(thisChannel.subscription == false)
       {
@@ -718,8 +719,6 @@ void PVRIptvData::loadChannel(PVRIptvChannel *m_channel)
   previousBufferPosition  = -1;
   m_currentChannel        = m_channel;
 
-  //Avec Kauth notre URL change, donc on la def. !!!! !!!!! DEPRECATED !!!! !!!!!
-  //m_currentChannel->url = m_api->getStreamURL(m_currentChannel->num_fr, m_adultCode);
 
   m_isPause               = false;
 
@@ -819,7 +818,7 @@ bool PVRIptvData::replayAvailable()
 {
   if(g_strLocationKsys ==  "CHE")
   {
-    std::string buffer = m_api->getCatchupForChannel(m_currentChannel->num_fr, getPlayingTime());
+    std::string buffer = m_api->getCatchupForChannel(m_currentChannel->id, getPlayingTime());
 
     if(buffer != "")
       return true;
@@ -896,7 +895,7 @@ void PVRIptvData::loadReplay()
 
   std::string strPlaylistContent;
 
-  strPlaylistContent = m_api->getCatchupForChannel(m_currentChannel->num_fr, getPlayingTime());
+  strPlaylistContent = m_api->getCatchupForChannel(m_currentChannel->id, getPlayingTime());
 
 
   std::stringstream stream(strPlaylistContent);
@@ -1045,14 +1044,6 @@ void PVRIptvData::loadM3u8Live(bool first, bool urlReloaded)
   {
     m_api->getKAuth()->setForceRefresh();
     loadM3u8Live(first, true);
-    /*
-      // !!! fonction DEPRECATED !!!
-      //Le token de visionnage a expiré, on le change
-      m_currentChannel->url = m_api->getStreamURL(m_currentChannel->num_fr, m_adultCode);
-      //On check si on tombe pas sur une erreur deux fois de suite
-      if (!urlReloaded)
-        loadM3u8Live(first, true);
-    */
   }
 }
 

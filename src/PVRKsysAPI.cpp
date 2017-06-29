@@ -620,7 +620,7 @@ std::string PVRKsysAPI::getStreamURL(int channel, std::string adultCode)
 */
 CURLResp PVRKsysAPI::getM3u8Live(std::string url)
 {
-
+  log(LOG_INFO, "PVRKsysAPI", "%s url=%s", __FUNCTION__, url.c_str());
   struct curl_slist *headers = NULL;
   std::string buffer;
   CURLcode code;
