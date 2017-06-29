@@ -295,7 +295,7 @@ std::string PVRKsysAPI::getChannels(std::string location)
     {
       json j = json::parse(buffer);
       if (j.find("content") != j.end()) {
-          return j["content"].dump();;
+          return j["content"].dump();
       }
       else
       {

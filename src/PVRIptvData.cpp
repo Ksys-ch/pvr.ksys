@@ -140,7 +140,6 @@ bool PVRIptvData::LoadPlayList(void)
       tmpChannel.free_timespan  = -1;
       tmpChannel.logo           = "";
       tmpChannel.name           = "";
-      tmpChannel.num            = -1;
       tmpChannel.num_ch         = -1;
       tmpChannel.num_fr         = -1;
       tmpChannel.package        = -1;
@@ -150,6 +149,9 @@ bool PVRIptvData::LoadPlayList(void)
       tmpChannel.urlBakcup      = "";
       //A implémenter
       tmpChannel.canPause       = true;
+
+			if (element["id"].type() ==  json::value_t::number_unsigned)
+        tmpChannel.id            = element["id"];
 
       if (element["adult"].type() ==  json::value_t::number_unsigned)
         tmpChannel.adult          = element["adult"];
@@ -168,9 +170,6 @@ bool PVRIptvData::LoadPlayList(void)
 
       if (element["name"].type() ==  json::value_t::string)
         tmpChannel.name           = element["name"];
-
-      if (element["num"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.num            = element["num"];
 
       if (element["num_ch"].type() ==  json::value_t::number_unsigned)
         tmpChannel.num_ch         = element["num_ch"];
@@ -191,12 +190,6 @@ bool PVRIptvData::LoadPlayList(void)
       {
         std::string url           = element["unicast"];
         tmpChannel.url            = m_api->getURLKTV(url);
-      }
-
-      if (element["urlBakcup"].type() ==  json::value_t::string)
-      {
-        std::string urlBakcup   = element["urlBakcup"];
-        tmpChannel.urlBakcup    = m_api->getURLKTV(urlBakcup); // + (std::string)"/" + m_api->getToken() + (std::string)"/" + (std::string)KEY_ACCESS_TV); // + "/ADULT CODE = ???"
       }
 
       if (element["subscription"].type() ==  json::value_t::string)
@@ -234,7 +227,6 @@ bool PVRIptvData::LoadPlayList(void)
           tmpRadio.logo           = "";
           tmpRadio.multicast      = "";
           tmpRadio.name           = "";
-          tmpRadio.num            = 10000;
           tmpRadio.region         = "";
           tmpRadio.url            = "";
           tmpRadio.canPause       = false;
@@ -253,8 +245,6 @@ bool PVRIptvData::LoadPlayList(void)
             tmpRadio.multicast = element["multicast"];
           if (element["name"].type() ==  json::value_t::string)
             tmpRadio.name      = element["name"];
-          if (element["num"].type() ==  json::value_t::number_unsigned)
-            tmpRadio.num       += (int)element["num"];
           if (element["region"].type() ==  json::value_t::string)
             tmpRadio.region    = element["region"];
           if (element["url"].type() ==  json::value_t::string)
@@ -284,7 +274,7 @@ PVR_ERROR PVRIptvData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       memset(&xbmcChannel, 0, sizeof(PVR_CHANNEL));
       xbmcChannel.iUniqueId         = channel.num_fr;
       xbmcChannel.bIsRadio          = false;
-      xbmcChannel.iChannelNumber    = channel.num;
+      xbmcChannel.iChannelNumber    = channel.num_fr;
       strncpy(xbmcChannel.strChannelName, channel.name.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
       strncpy(xbmcChannel.strIconPath, channel.logo.c_str(), sizeof(xbmcChannel.strIconPath) - 1);
       xbmcChannel.bIsHidden         = false;
@@ -341,7 +331,7 @@ bool PVRIptvData::GetChannel(const PVR_CHANNEL &channel, PVRIptvChannel &myChann
       myChannel.free_timespan   = thisChannel.free_timespan;
       myChannel.logo            = thisChannel.logo;
       myChannel.name            = thisChannel.name;
-      myChannel.num             = thisChannel.num;
+      myChannel.id              = thisChannel.id;
       myChannel.num_ch          = thisChannel.num_ch;
       myChannel.num_fr          = thisChannel.num_fr;
       myChannel.package         = thisChannel.package;
@@ -435,8 +425,9 @@ PVR_ERROR PVRIptvData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHA
 
 PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
+	log(LOG_INFO, "PVRIptvData", "%s getEPGForChannel", __FUNCTION__);
   PVRIptvChannel *tmpChannel = findChannelById(channel.iUniqueId);
-  std::string contentEPG = m_api->getEPGForChannel(tmpChannel->num_fr, iStart, iEnd);
+  std::string contentEPG = m_api->getEPGForChannel(tmpChannel->id, iStart, iEnd);
 
     if(!contentEPG.empty())
     {
@@ -452,8 +443,9 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
         if (element["titre"].type() ==  json::value_t::string)
           tag.strTitle          = XBMC->UnknownToUTF8(((std::string)(element.value("titre",""))).c_str());
 
-        if (element["num"].type() ==  json::value_t::number_unsigned)
-          tag.iChannelNumber          = element.value("num",0);
+        if (element["num"].type() ==  json::value_t::number_unsigned) {
+          tag.iChannelNumber          = element.value(g_strLocationKsys=="CHE"?"num_ch":"num_fr",0);
+        }
 
         if (element["dateCompleteDebut"].type() ==  json::value_t::string)
         {
