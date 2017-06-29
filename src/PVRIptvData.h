@@ -76,12 +76,12 @@ struct PVRIptvRadio
 
 struct PVRIptvChannel
 {
+	int         id;
   int         adult;
   bool        epg;
   int         free_timespan;
   std::string logo;
   std::string name;
-  int         num;
   int         num_ch;
   int         num_fr;
   int         package;
