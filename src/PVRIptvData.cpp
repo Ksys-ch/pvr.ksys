@@ -272,9 +272,14 @@ PVR_ERROR PVRIptvData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       PVRIptvChannel &channel = m_channels.at(iChannelPtr);
       PVR_CHANNEL xbmcChannel;
       memset(&xbmcChannel, 0, sizeof(PVR_CHANNEL));
-      xbmcChannel.iUniqueId         = channel.num_fr;
+      if (g_strLocationKsys == "CHE") {
+        xbmcChannel.iUniqueId         = channel.num_ch;
+        xbmcChannel.iChannelNumber    = channel.num_ch;
+      } else {
+        xbmcChannel.iUniqueId         = channel.num_fr;
+        xbmcChannel.iChannelNumber    = channel.num_fr;
+      }
       xbmcChannel.bIsRadio          = false;
-      xbmcChannel.iChannelNumber    = channel.num_fr;
       strncpy(xbmcChannel.strChannelName, channel.name.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
       strncpy(xbmcChannel.strIconPath, channel.logo.c_str(), sizeof(xbmcChannel.strIconPath) - 1);
       xbmcChannel.bIsHidden         = false;
@@ -425,8 +430,14 @@ PVR_ERROR PVRIptvData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHA
 
 PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
-	log(LOG_INFO, "PVRIptvData", "%s getEPGForChannel", __FUNCTION__);
+  log(LOG_INFO, "PVRIptvData", "%s getEPGForChannel", __FUNCTION__);
   PVRIptvChannel *tmpChannel = findChannelById(channel.iUniqueId);
+
+  if (tmpChannel == NULL) {
+    log(LOG_ERROR, "PVRIptvData", "Channel not found %d", channel.iUniqueId);
+    return PVR_ERROR_FAILED;
+  }
+
   std::string contentEPG = m_api->getEPGForChannel(tmpChannel->id, iStart, iEnd);
 
     if(!contentEPG.empty())
@@ -542,8 +553,9 @@ PVRIptvChannel * PVRIptvData::findChannelById(int idChannel)
   std::vector<PVRIptvChannel>::iterator it;
   for(it = m_channels.begin(); it < m_channels.end(); ++it)
   {
-    if (it->num_fr == idChannel)
+    if (it->id == idChannel) {
       return &*it;
+    }
   }
 
   return NULL;
