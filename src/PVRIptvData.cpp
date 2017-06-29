@@ -175,9 +175,12 @@ bool PVRIptvData::LoadPlayList(void)
       if (element["num_ch"].type() ==  json::value_t::number_unsigned)
         tmpChannel.num_ch         = element["num_ch"];
 
-      if (element["num_fr"].type() ==  json::value_t::number_unsigned)
+      if (element["num_fr"].type() ==  json::value_t::number_unsigned) {
         tmpChannel.num_fr         = element["num_fr"];
-
+        // TODO fix demo, have to switch on extern url
+        std::string n = std::to_string(tmpChannel.num_fr);
+        tmpChannel.logo           = ((std::string)(g_strClientPath + "/resources/logos/" + n +".png")).c_str();
+      }
       if (element["package"].type() ==  json::value_t::number_unsigned)
         tmpChannel.package        = element["package"];
 
