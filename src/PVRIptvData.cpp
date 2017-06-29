@@ -62,7 +62,7 @@
   Buffer qui contient le LIVE donc > SIZE_OF_BUFFER_LIVE mais aussi pour la pause. EN cas de pause le buffer continue à se remplir pour palier au décalage du replay.
   !! Recommandation : 10 minutes = 600s = 60 TS ====> SIZE_OF_BUFFER_TS = 60
 */
-#define SIZE_OF_BUFFER_TS         10 
+#define SIZE_OF_BUFFER_TS         10
 /*
   Taille maximum du code pin pour les chaines adultes (????? je ne sais pas donc j'ai mis 15)
 */
@@ -100,7 +100,7 @@ PVRIptvData::PVRIptvData(void)
   {
     PVR->TriggerChannelUpdate();
     XBMC->QueueNotification(QUEUE_INFO, "%d chaine(s) chargée(s).", m_channels.size());
-    XBMC->QueueNotification(QUEUE_INFO, "%d radio(s) chargée(s).", m_radios.size());  
+    XBMC->QueueNotification(QUEUE_INFO, "%d radio(s) chargée(s).", m_radios.size());
   }
 
 }
@@ -193,7 +193,7 @@ bool PVRIptvData::LoadPlayList(void)
       if (element["urlBakcup"].type() ==  json::value_t::string)
       {
         std::string urlBakcup   = element["urlBakcup"];
-        tmpChannel.urlBakcup    = m_api->getURLKTV(urlBakcup); // + (std::string)"/" + m_api->getToken() + (std::string)"/" + (std::string)KEY_ACCESS_TV); // + "/ADULT CODE = ???" 
+        tmpChannel.urlBakcup    = m_api->getURLKTV(urlBakcup); // + (std::string)"/" + m_api->getToken() + (std::string)"/" + (std::string)KEY_ACCESS_TV); // + "/ADULT CODE = ???"
       }
 
       if (element["subscription"].type() ==  json::value_t::string)
@@ -285,7 +285,7 @@ PVR_ERROR PVRIptvData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       strncpy(xbmcChannel.strChannelName, channel.name.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
       strncpy(xbmcChannel.strIconPath, channel.logo.c_str(), sizeof(xbmcChannel.strIconPath) - 1);
       xbmcChannel.bIsHidden         = false;
-      
+
       PVR->TransferChannelEntry(handle, &xbmcChannel);
     }
   }
@@ -413,8 +413,8 @@ PVR_ERROR PVRIptvData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
       PVR_CHANNEL_GROUP xbmcGroup;
       memset(&xbmcGroup, 0, sizeof(PVR_CHANNEL_GROUP));
 
-      xbmcGroup.iPosition = 0;      // not supported  
-      xbmcGroup.bIsRadio  = bRadio; // is radio group 
+      xbmcGroup.iPosition = 0;      // not supported
+      xbmcGroup.bIsRadio  = bRadio; // is radio group
       strncpy(xbmcGroup.strGroupName, it->strGroupName.c_str(), sizeof(xbmcGroup.strGroupName) - 1);
 
       PVR->TransferChannelGroup(handle, &xbmcGroup);
@@ -438,7 +438,7 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
     if(!contentEPG.empty())
     {
       json j = json::parse(contentEPG);
-      for (auto& element : j[std::to_string(channel.iUniqueId)]) 
+      for (auto& element : j[std::to_string(channel.iUniqueId)])
       {
         EPG_TAG tag;
         memset(&tag, 0, sizeof(EPG_TAG));
@@ -455,13 +455,13 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
         if (element["dateCompleteDebut"].type() ==  json::value_t::string)
         {
           std::string dateStart = (std::string)element.value("dateCompleteDebut","");
-          tag.startTime          = ParseDateTime(dateStart, false);      
+          tag.startTime          = ParseDateTime(dateStart, false);
         }
 
         if (element["dateCompleteFin"].type() ==  json::value_t::string)
         {
           std::string dateEnd = (std::string)element.value("dateCompleteFin","");
-          tag.endTime          = ParseDateTime(dateEnd, false);      
+          tag.endTime          = ParseDateTime(dateEnd, false);
         }
 
         if (element["description"].type() ==  json::value_t::string)
@@ -488,7 +488,7 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
         if(tmpChannel->adult == 1)
           tag.iParentalRating     = 18;
         else
-          tag.iParentalRating     = 0; 
+          tag.iParentalRating     = 0;
 
         tag.iStarRating         = 0;     // not supported
         tag.bNotify             = false; // not supported
@@ -607,7 +607,7 @@ bool PVRIptvData::buyChannel(PVRIptvChannel *channel)
     std::cout << "bcancel : " << bCanceled << "\n";
     if(resultBuy)
     {
-      std::string buyCode = PVRXBMC::XBMC_MD5::GetMD5("1997"); 
+      std::string buyCode = PVRXBMC::XBMC_MD5::GetMD5("1997");
       char* strBuyCode = (char*)buyCode.c_str();
       bool result = false;
       int i = 0;
@@ -631,7 +631,7 @@ bool PVRIptvData::buyChannel(PVRIptvChannel *channel)
 
       return result;
     }
-    
+
     //MAX_PINECODE_RETRY
     //MAX_PINECODE_LENGTH
 
@@ -639,7 +639,7 @@ bool PVRIptvData::buyChannel(PVRIptvChannel *channel)
 }
 
 /*!
-   * demande le code pin des chaines pour adult et vérifie qu'il est bon 
+   * demande le code pin des chaines pour adult et vérifie qu'il est bon
    * @param myChannel : pointeur vers la chaine courante
    * @return bool : true si le bon code a été tapé sinon false
 */
@@ -650,7 +650,7 @@ bool PVRIptvData::checkAdultPinCode(PVRIptvChannel *myChannel)
 
   bool bCanceled;
   bool result;
-  int dlogResult = -1;    
+  int dlogResult = -1;
   int nbTry      = MAX_PINECODE_RETRY;
   // -1 = fail
   // 0  = cancel
@@ -729,7 +729,7 @@ void PVRIptvData::loadChannel(PVRIptvChannel *m_channel)
   loadM3u8Live(true);
 
   while(isPlaying() && !m_isReplay)
-  {    
+  {
 
     /* Pause 'intelligente' qui permet de stopper le thread plus rapidement qu'un usleep(100 * 1000); | 10 fois par sec */
     for(int t = 0; t < 2000; t++)
@@ -795,7 +795,7 @@ bool PVRIptvData::isPlaying()
    * Est-ce qu'on est en pause
    * @param /
    * @return true si on est en pause, sinon false
-   * @remarks 
+   * @remarks
 */
 bool PVRIptvData::isPause()
 {
@@ -813,7 +813,7 @@ bool PVRIptvData::replayAvailable()
   if(g_strLocationKsys ==  "CHE")
   {
     std::string buffer = m_api->getCatchupForChannel(m_currentChannel->num_fr, getPlayingTime());
-  
+
     if(buffer != "")
       return true;
   }
@@ -859,10 +859,10 @@ void PVRIptvData::bufferReplay()
 
   do
   {
-   
+
     tmpPVRKSysReplayFile = m_bufferReplayFileWaiting.front();
     result = pushTsFileToBuffer(tmpPVRKSysReplayFile.sequenceNumber, tmpPVRKSysReplayFile.url, tmpPVRKSysReplayFile.duration);
-    
+
     if(result != -1)
     {
       m_bufferReplayFileWaiting.erase(m_bufferReplayFileWaiting.begin());
@@ -919,12 +919,12 @@ void PVRIptvData::loadReplay()
       sequenceNumber = 0;
     }
     else if (strLine[0] != '#' && !strLine.empty())
-    {  
+    {
       m_totalTimeTs += duration;
       m_totalTsDownloaded++;
       PVRKSysReplayFile tmpReplay;
 
-      tmpReplay.duration = duration;     
+      tmpReplay.duration = duration;
       tmpReplay.url = strLine;
       tmpReplay.sequenceNumber = sequenceNumber;
 
@@ -952,7 +952,7 @@ void PVRIptvData::loadReplay()
 }
 
 /*!
-   * Charge le M3U8 actuel de la chaine avec l'URL dans la chaine courante. 
+   * Charge le M3U8 actuel de la chaine avec l'URL dans la chaine courante.
    * @param first : true si c'est la première fois qu'on l'appelle
    * @return /
    * @remarks il faut appeler cette fonction assez souvent pour qu'elle charge le buffer du live
@@ -1007,7 +1007,7 @@ void PVRIptvData::loadM3u8Live(bool first, bool urlReloaded)
         if(first)
         {
           if(m_currentSequenceNumber<=sequenceNumber)
-          {         
+          {
             pushTsFileToBuffer(sequenceNumber, strLine, duration);
           }
         }
@@ -1039,7 +1039,7 @@ void PVRIptvData::loadM3u8Live(bool first, bool urlReloaded)
     m_api->getKAuth()->setForceRefresh();
     loadM3u8Live(first, true);
     /*
-      // !!! fonction DEPRECATED !!! 
+      // !!! fonction DEPRECATED !!!
       //Le token de visionnage a expiré, on le change
       m_currentChannel->url = m_api->getStreamURL(m_currentChannel->num_fr, m_adultCode);
       //On check si on tombe pas sur une erreur deux fois de suite
@@ -1077,10 +1077,10 @@ int PVRIptvData::pushTsFileToBuffer(int sequence, std::string url, float duratio
         m_bufferTS[i].bufferPosition = i;
         if(previousBufferPosition >= 0)
           m_bufferTS[previousBufferPosition].nextSequenceBufferPosition = i;
-       
+
         previousBufferPosition = i;
         m_currentDownload = false;
-        
+
         return i;
       }
       else
@@ -1103,7 +1103,7 @@ int PVRIptvData::pushTsFileToBuffer(int sequence, std::string url, float duratio
 bool PVRIptvData::sequenceNumberExist(int sequence)
 {
   log(LOG_DEBUG, "PVRIptvData", "function %s is called", __FUNCTION__ );
-  for(int i = 0; i < SIZE_OF_BUFFER_TS; i++) 
+  for(int i = 0; i < SIZE_OF_BUFFER_TS; i++)
   {
     if(m_bufferTS[i].sequenceNumber == sequence)
       return true;
@@ -1120,7 +1120,7 @@ bool PVRIptvData::sequenceNumberExist(int sequence)
 bool PVRIptvData::bufferTsIsFull()
 {
   log(LOG_DEBUG, "PVRIptvData", "function %s is called", __FUNCTION__ );
-  for(int i = 0; i < SIZE_OF_BUFFER_TS; i++) 
+  for(int i = 0; i < SIZE_OF_BUFFER_TS; i++)
   {
     if(m_bufferTS[i].sequenceNumber == -1)
       return false;
@@ -1164,7 +1164,7 @@ PVRKSysFile* PVRIptvData::getFileToRead()
     return NULL;
   }
 
-  if(m_currentSequence == NULL) 
+  if(m_currentSequence == NULL)
   {
     for(int i = 0; i < SIZE_OF_BUFFER_TS; i++)
     {
@@ -1194,7 +1194,7 @@ void PVRIptvData::closeFile(PVRKSysFile* KSysFile)
   log(LOG_DEBUG, "PVRIptvData", "function %s is called", __FUNCTION__ );
   addTimeRead(KSysFile->duration);
   XBMC->CloseFile(KSysFile->fileHandle);
-  KSysFile->sequenceNumber      = -1; 
+  KSysFile->sequenceNumber      = -1;
 
   m_currentSequence             = &m_bufferTS[KSysFile->nextSequenceBufferPosition];
   m_currentSequenceNumber       = m_currentSequence->sequenceNumber;
@@ -1208,7 +1208,7 @@ void PVRIptvData::closeFile(PVRKSysFile* KSysFile)
    * @remarks /
 */
 void PVRIptvData::flushBuffer()
-{ 
+{
   log(LOG_DEBUG, "PVRIptvData", "function %s is called", __FUNCTION__ );
   if(m_currentSequenceNumber != -1)
   {
@@ -1270,7 +1270,7 @@ float PVRIptvData::getAvgTimeTs()
    * @remarks ATTENTION cette valeur est aproximative
 */
 float PVRIptvData::getDelayHls()
-{ 
+{
   return getAvgTimeTs()*SIZE_OF_LIVE;
   //return m_totalTimeTs - m_timeRead;
 }
@@ -1283,7 +1283,7 @@ float PVRIptvData::getDelayHls()
    * @remarks UTC
 */
 time_t PVRIptvData::getPlayingTime()
-{  
+{
   time_t start_date = m_startTimeLive;
     /*struct tm start = *localtime(&start_date);
 
@@ -1304,7 +1304,7 @@ time_t PVRIptvData::getPlayingTime()
    * @remarks ATTENTION ici nous trichons pour afficher l'heure de diffusion du Live et non la durée de la lecture.
    * @remarks UTC
 */
-time_t PVRIptvData::getBufferTimeStart() {   
+time_t PVRIptvData::getBufferTimeStart() {
 
     //return m_startTimeLive;
 
