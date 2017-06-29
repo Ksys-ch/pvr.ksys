@@ -273,10 +273,10 @@ PVR_ERROR PVRIptvData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       PVR_CHANNEL xbmcChannel;
       memset(&xbmcChannel, 0, sizeof(PVR_CHANNEL));
       if (g_strLocationKsys == "CHE") {
-        xbmcChannel.iUniqueId         = channel.num_ch;
+        xbmcChannel.iUniqueId         = channel.id;
         xbmcChannel.iChannelNumber    = channel.num_ch;
       } else {
-        xbmcChannel.iUniqueId         = channel.num_fr;
+        xbmcChannel.iUniqueId         = channel.id;
         xbmcChannel.iChannelNumber    = channel.num_fr;
       }
       xbmcChannel.bIsRadio          = false;
