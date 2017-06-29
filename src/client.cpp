@@ -67,11 +67,11 @@ extern std::string PathCombine(const std::string &strPath, const std::string &st
 {
   std::string strResult = strPath;
   if (strResult.at(strResult.size() - 1) == '\\' ||
-      strResult.at(strResult.size() - 1) == '/') 
+      strResult.at(strResult.size() - 1) == '/')
   {
     strResult.append(strFileName);
   }
-  else 
+  else
   {
     strResult.append("/");
     strResult.append(strFileName);
@@ -112,11 +112,11 @@ void ADDON_ReadSettings(void)
   //Ksys
 
   //Récupération des infos
-  if (XBMC->GetSetting("location_ksys", &buffer)) 
+  if (XBMC->GetSetting("location_ksys", &buffer))
   {
       g_strLocationKsys = buffer;
   }
-  
+
   //Valeurs par defauts :
   if(g_strLocationKsys == "")
     g_strLocationKsys = "CHE";
@@ -209,7 +209,7 @@ unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
 ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 {
   std::string strName = settingName;
-  if ("location_ksys" == strName) 
+  if ("location_ksys" == strName)
   {
     g_strLocationKsys = (const char*) settingValue;
     m_data->reloadPlayList();
@@ -221,12 +221,12 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 
 void ADDON_Stop()
 {
-  
+
 }
 
 void ADDON_FreeSettings()
 {
-  
+
 }
 
 /***********************************************************
@@ -235,53 +235,53 @@ void ADDON_FreeSettings()
 
 void OnSystemSleep()
 {
-  
+
 }
 
 void OnSystemWake()
 {
-  
+
 }
 
 void OnPowerSavingActivated()
 {
-  
+
 }
 
 void OnPowerSavingDeactivated()
 {
-  
+
 }
 
 const char* GetPVRAPIVersion(void)
 {
-  
+
   static const char *strApiVersion = XBMC_PVR_API_VERSION;
   return strApiVersion;
 }
 
 const char* GetMininumPVRAPIVersion(void)
 {
-  
+
   static const char *strMinApiVersion = XBMC_PVR_MIN_API_VERSION;
   return strMinApiVersion;
 }
 
 const char* GetGUIAPIVersion(void)
 {
-  
+
   return ""; // GUI API not used
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  
+
   return ""; // GUI API not used
 }
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 {
-  
+
   pCapabilities->bSupportsTV = true;
   pCapabilities->bSupportsEPG = true;
   pCapabilities->bSupportsChannelGroups = true;
@@ -301,28 +301,28 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 
 const char *GetBackendName(void)
 {
-  
+
   static const char *strBackendName = "K-Sys PVR Add-on";
   return strBackendName;
 }
 
 const char *GetBackendVersion(void)
 {
-  
+
   static std::string strBackendVersion = XBMC_PVR_API_VERSION;
   return strBackendVersion.c_str();
 }
 
 const char *GetConnectionString(void)
 {
-  
+
   static std::string strConnectionString = "connected";
   return strConnectionString.c_str();
 }
 
 const char *GetBackendHostname(void)
 {
-  
+
   return "";
 }
 
@@ -337,18 +337,18 @@ PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
-  /* 
+  /*
     * Chaines < 10000
     * radios > 10000 *
   */
-  if (m_data) 
+  if (m_data)
   {
-    if (channel.iUniqueId < 10000) 
+    if (channel.iUniqueId < 10000)
       return m_data->GetEPGForChannel(handle, channel, iStart, iEnd);
     else
       return PVR_ERROR_NO_ERROR;
   }
-    
+
   return PVR_ERROR_SERVER_ERROR;
 }
 
@@ -411,7 +411,7 @@ void CloseLiveStream(void)
 }
 
 bool PerformChannelSwitch(const PVR_CHANNEL &channel, bool bPreview)
-{  
+{
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
   CloseLiveStream();
 
@@ -419,7 +419,7 @@ bool PerformChannelSwitch(const PVR_CHANNEL &channel, bool bPreview)
 }
 
 bool SwitchChannel(const PVR_CHANNEL &channel)
-{  
+{
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
   CloseLiveStream();
 
@@ -468,24 +468,24 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   return PVR_ERROR_NO_ERROR;
 }
 
-const char * GetLiveStreamURL(const PVR_CHANNEL &channel) { 
+const char * GetLiveStreamURL(const PVR_CHANNEL &channel) {
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
-  return ""; 
+  return "";
 }
-bool CanPauseStream(void) { 
+bool CanPauseStream(void) {
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
   if(m_isRadio)
-    return m_currentRadio.canPause; 
+    return m_currentRadio.canPause;
   else
-    return m_currentChannel.canPause; 
+    return m_currentChannel.canPause;
 }
 
-int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) 
-{ 
+int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
+{
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
   int timeout = TIMEOUT_BUFFER_DOWNLOAD*10;
   while (m_data->waitingDownload() == true && timeout > 0 && !(m_data->isPause()))
-  {  
+  {
     usleep(100000); // 10 fois par seconde
     timeout--;
   }
@@ -503,9 +503,9 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
     {
       if (fileKSys->fileHandle && fileKSys->sequenceNumber >= 0)
       {
-        
+
         int byteRead = (int)XBMC->ReadFile(fileKSys->fileHandle, pBuffer, iBufferSize);
-        
+
         /*if(XBMC->GetFilePosition(fileKSys->fileHandle) == XBMC->GetFileLength(fileKSys->fileHandle))
         {
           m_data->closeFile(fileKSys);
@@ -515,7 +515,7 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
           m_data->closeFile(fileKSys);
         }
 
-        return byteRead; 
+        return byteRead;
       }
     }
   }
@@ -525,24 +525,24 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
   return 0;
 }
 
-long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { 
+long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) {
   return -1; // ON gère pas
 }
 
-long long PositionLiveStream(void) { 
+long long PositionLiveStream(void) {
   return -1; // ON gère pas
 }
 
-long long LengthLiveStream(void) { 
+long long LengthLiveStream(void) {
   return -1;
 }
 
-bool IsTimeshifting(void) { 
+bool IsTimeshifting(void) {
   return false;
 }
 
-bool IsRealTimeStream(void) { 
-  return true; 
+bool IsRealTimeStream(void) {
+  return true;
 }
 
 void PauseStream(bool bPaused) {
@@ -551,15 +551,15 @@ void PauseStream(bool bPaused) {
   m_data->setPause(bPaused);
 }
 
-time_t GetPlayingTime() { 
+time_t GetPlayingTime() {
   return m_data->getPlayingTime();
 }
 
-time_t GetBufferTimeStart() { 
+time_t GetBufferTimeStart() {
   return m_data->getBufferTimeStart();
 }
 
-time_t GetBufferTimeEnd() { 
+time_t GetBufferTimeEnd() {
   return m_data->getBufferTimeEnd();
 }
 
@@ -567,37 +567,37 @@ time_t GetBufferTimeEnd() {
 PVR_ERROR GetTimers(ADDON_HANDLE handle) {
   if(m_recorder)
     return m_recorder->getTimers(handle);
-  return PVR_ERROR_SERVER_ERROR; 
+  return PVR_ERROR_SERVER_ERROR;
 }
 
-PVR_ERROR AddTimer(const PVR_TIMER &timer) { 
+PVR_ERROR AddTimer(const PVR_TIMER &timer) {
   if(m_recorder)
     return m_recorder->addTimer(timer);
-  return PVR_ERROR_SERVER_ERROR; 
+  return PVR_ERROR_SERVER_ERROR;
 }
 
-PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete) { 
+PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete) {
   if(m_recorder)
     return m_recorder->deleteTimer(timer, bForceDelete);
-  return PVR_ERROR_SERVER_ERROR; 
+  return PVR_ERROR_SERVER_ERROR;
 }
 
-PVR_ERROR UpdateTimer(const PVR_TIMER &timer) { 
+PVR_ERROR UpdateTimer(const PVR_TIMER &timer) {
   if(m_recorder)
     return m_recorder->updateTimer(timer);
-  return PVR_ERROR_SERVER_ERROR; 
+  return PVR_ERROR_SERVER_ERROR;
 }
 
 PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size) {
   //if(m_recorder)
     //return m_recorder->getTimerTypes(types, size);
-  return PVR_ERROR_NOT_IMPLEMENTED; 
+  return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-int GetTimersAmount(void) {   
+int GetTimersAmount(void) {
   if(m_recorder)
     return m_recorder->getTimersAmount();
-  return PVR_ERROR_SERVER_ERROR; 
+  return PVR_ERROR_SERVER_ERROR;
 }
 
 /** UNUSED API FUNCTIONS **/
