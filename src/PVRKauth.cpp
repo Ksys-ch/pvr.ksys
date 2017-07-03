@@ -173,10 +173,13 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
   GUI->Dialog_Keyboard_ShowAndGetInput(*username, 128, "Nom d'utilisateur", true, 0);
   GUI->Dialog_Keyboard_ShowAndGetNewPassword(*password, 128, "Mot de passe", true, 0);
 
-  std::string strUsername = XBMC->UnknownToUTF8(username);
-  std::string strPassword = XBMC->UnknownToUTF8(password);
+  CURL *curl;
+  curl = curl_easy_init();
+  char *strUsername = curl_easy_escape(curl, XBMC->UnknownToUTF8(username), 0);
+  char *strPassword = curl_easy_escape(curl, XBMC->UnknownToUTF8(password), 0);
+  curl_easy_cleanup(curl);
 
-  std::string strCredentials = "grant_type=password&client_id=ktv&username=" + strUsername + "&password=" + strPassword;
+  std::string strCredentials = "grant_type=password&client_id=ktv&username=" + (std::string)strUsername + "&password=" + (std::string)strPassword;
   struct curl_slist *headers = NULL;
 
   headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
@@ -198,7 +201,7 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
     bool resultContinue = GUI->Dialog_YesNo_ShowAndGetInput("Erreur K-Sys PVR", "Nom d'utilisateur ou mot de passe incorrect !", bCanceled, "Annuler", "Modifier");
     if (resultContinue && !bCanceled)
     {
-      return getJWTPassword(strUsername);
+      return getJWTPassword(username);
     }
   }
 
