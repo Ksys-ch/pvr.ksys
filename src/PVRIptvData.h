@@ -166,10 +166,10 @@ public:
   virtual time_t              getBufferTimeEnd(void);
   virtual bool                checkAdultPinCode(PVRIptvChannel *myChannel);
   virtual bool                buyChannel(PVRIptvChannel *channel);
-
+  virtual bool                checkAPIReady(void);
+  virtual bool                LoadPlayList(void);
 
 protected:
-  virtual bool                 LoadPlayList(void);
   virtual PVRIptvChannel*      findChannelById(int idChannel);
   virtual PVRIptvChannelGroup* FindGroup(const std::string &strName);
   virtual int                  ParseDateTime(std::string& strDate, bool iDateFormat = true);

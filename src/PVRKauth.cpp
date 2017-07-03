@@ -153,10 +153,20 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
   username[0] = '\0';
   password[0] = '\0';
 
+  /* Reset credentials */
+  p_jwt.expireAccessTokenDate = 0;
+  p_jwt.accessToken = "";
+  p_jwt.refreshToken = "";
+
   if(usernameDefault != "")
     strcpy (username,usernameDefault.c_str());
   else
-    GUI->Dialog_OK_ShowAndGetInput("Infos K-Sys PVR", "Vous devez vous identifier avec votre compte K-Sys/K-net.");
+  {
+    bool canceledAuth = false;
+    bool resultContinueAuth = GUI->Dialog_YesNo_ShowAndGetInput("Infos K-Sys PVR", "Vous devez vous identifier avec votre compte K-Sys/K-net.", canceledAuth, "Annuler", "Continuer");
+    if (!resultContinueAuth || canceledAuth)
+      return p_jwt;
+  }
 
   strcpy (password,"");
 
@@ -189,12 +199,6 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
     if (resultContinue && !bCanceled)
     {
       return getJWTPassword(strUsername);
-    }
-    else
-    {
-      p_jwt.expireAccessTokenDate = 0;
-      p_jwt.accessToken = "";
-      p_jwt.refreshToken = "";
     }
   }
 

@@ -173,6 +173,14 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   ADDON_ReadSettings();
 
   m_data        = new PVRIptvData;
+
+  /* On vérifie si on est authentifié et que l'utilisateur n'a pas annulé */
+  if(m_data)
+    if(!m_data->checkAPIReady())
+      return m_CurStatus;
+    else
+      m_data->LoadPlayList();
+
   m_recorder    = new PVRRecorder;
   m_CurStatus   = ADDON_STATUS_OK;
   m_bCreated    = true;

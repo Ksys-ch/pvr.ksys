@@ -96,13 +96,6 @@ PVRIptvData::PVRIptvData(void)
   m_groups.clear();
   m_epg.clear();
 
-  if (LoadPlayList())
-  {
-    PVR->TriggerChannelUpdate();
-    XBMC->QueueNotification(QUEUE_INFO, "%d chaine(s) chargée(s).", m_channels.size());
-    XBMC->QueueNotification(QUEUE_INFO, "%d radio(s) chargée(s).", m_radios.size());
-  }
-
 }
 
 void *PVRIptvData::Process(void)
@@ -120,6 +113,22 @@ PVRIptvData::~PVRIptvData(void)
   free(m_bufferTS);
   m_bufferReplayFileWaiting.clear();
 }
+
+/*!
+   * Vérifie si on est prêt à utiliser l'API (authentifié)
+   * @param /
+   * @return bool : true si on est prêt sinon false
+*/
+bool PVRIptvData::checkAPIReady(void)
+{
+  if(m_api)
+  {
+    if(m_api->getKAuth()->getJWT().accessToken != "")
+      return true;
+  }
+  return false;
+}
+
 
 bool PVRIptvData::LoadPlayList(void)
 {
@@ -255,6 +264,11 @@ bool PVRIptvData::LoadPlayList(void)
           m_radios.push_back(tmpRadio);
     }
   }
+
+  /* On affiche le résultat et informe kodi */
+  PVR->TriggerChannelUpdate();
+  XBMC->QueueNotification(QUEUE_INFO, "%d chaine(s) chargée(s).", m_channels.size());
+  XBMC->QueueNotification(QUEUE_INFO, "%d radio(s) chargée(s).", m_radios.size());
 
   return true;
 }
