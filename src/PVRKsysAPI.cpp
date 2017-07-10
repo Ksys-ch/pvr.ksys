@@ -480,20 +480,17 @@ bool PVRKsysAPI::checkAdultCode(std::string adultCode)
 
   CURLcode code = requestPOST(getURLKTV("/pin/adult/check/"), strCredentials, headers, &buffer, &http_code);
 
-  if(http_code == 200)
+  if (http_code == 200) {
+    return true;
+  }
+  else
   {
-    if (http_code == 200) {
-      return true;
-    }
-    else
-    {
-      json j = json::parse(buffer);
-      if (j.find("message") != j.end()) {
-        //LE serveur nous indique une erreur dans message
-        std::string message = j["message"];
-        log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de vérifier le code adulte : %s", message.c_str());
-        XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP de vérifier le code adulte");
-      }
+    json j = json::parse(buffer);
+    if (j.find("message") != j.end()) {
+      //LE serveur nous indique une erreur dans message
+      std::string message = j["message"];
+      log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de vérifier le code adulte : %s", message.c_str());
+      XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP de vérifier le code adulte");
     }
   }
 
