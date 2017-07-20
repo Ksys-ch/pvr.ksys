@@ -103,6 +103,23 @@ extern void log(const addon_log_t logLevel, const std::string module, const char
   }
 }
 
+bool InitPVR()
+{
+  m_data        = new PVRIptvData;
+
+  /* On vérifie si on est authentifié et que l'utilisateur n'a pas annulé */
+  if(m_data)
+    if(!m_data->checkAPIReady())
+    {
+      m_CurStatus = ADDON_STATUS_UNKNOWN;
+      return false;
+    }
+    else
+      m_data->LoadPlayList();
+
+  m_recorder    = new PVRRecorder;
+  return true;
+}
 
 extern "C" {
 
@@ -372,6 +389,10 @@ int GetChannelsAmount(void)
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   log(LOG_DEBUG, "client", "function %s is called", __FUNCTION__ );
+  if (!m_data)
+    if (!InitPVR())
+      return PVR_ERROR_SERVER_ERROR;
+
   if (m_data)
     return m_data->GetChannels(handle, bRadio);
 

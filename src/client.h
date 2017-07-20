@@ -56,3 +56,4 @@ extern std::string GetClientFilePath(const std::string &strFileName);
 extern std::string GetUserFilePath(const std::string &strFileName);
 
 extern void log(const ADDON::addon_log_t logLevel, const std::string module, const char *format, ...);
+extern bool InitPVR();
