@@ -1,6 +1,6 @@
 project(pvr.ksys)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.4.3)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
@@ -9,6 +9,7 @@ enable_language(CXX)
 include(FindOpenSSL)
 #include(FindCURL)
 
+set(CMAKE_ANDROID_STL_TYPE gnustl_shared)
 SET( CMAKE_CXX_FLAGS  "-DANDROID_STL=c++_shared ${CMAKE_CXX_FLAGS}" )
 
 find_package(Kodi REQUIRED)
