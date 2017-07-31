@@ -20,11 +20,9 @@
  */
 
 #pragma once
- 
-#include "json.hpp"
-#include <curl/curl.h>
 
-using json = nlohmann::json;
+#include <json/json.h>
+#include <curl/curl.h>
 
 class PVRKsysAPI;
 

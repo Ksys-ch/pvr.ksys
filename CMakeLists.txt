@@ -17,15 +17,18 @@ find_package(kodiplatform REQUIRED)
 find_package(p8-platform REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
+find_package(JsonCpp REQUIRED)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}
                     ${KODI_INCLUDE_DIR}
+                    ${JSONCPP_INCLUDE_DIRS}
                     ${PROJECT_SOURCE_DIR}/lib)
 
 set(DEPLIBS ${p8-platform_LIBRARIES}
             ${ZLIB_LIBRARIES}
-            ${CURL_LIBRARIES})
+            ${CURL_LIBRARIES}
+            ${JSONCPP_LIBRARIES})
 
 message(STATUS "ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
 message(STATUS "CURL_LIBRARIES: ${CURL_LIBRARIES}")
@@ -37,19 +40,19 @@ set(KSYS_SOURCES src/client.cpp
 				 src/PVRKsysAPI.cpp
                  src/PVRIptvData.cpp
                  src/md5.cpp
-                 src/PVRRecorder.cpp
-                 src/PVRRecorderJob.cpp
                  src/PVRKauth.cpp
                  src/dialogs/GUIDialogPinCode.cpp)
+#src/PVRRecorder.cpp
+#src/PVRRecorderJob.cpp
 
 set(KSYS_HEADERS src/client.h
 				 src/PVRKsysAPI.h
                  src/PVRIptvData.h
                  src/md5.h
-                 src/PVRRecorder.h
-                 src/PVRRecorderJob.h
                  src/PVRKauth.h
                  src/dialogs/GUIDialogPinCode.h)
+#src/PVRRecorder.h
+#src/PVRRecorderJob.h
 
 build_addon(pvr.ksys KSYS DEPLIBS)
 

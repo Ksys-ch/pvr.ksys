@@ -21,12 +21,10 @@
 #pragma once
 
 #include "client.h"
-#include "json.hpp"
+#include <json/json.h>
 #include <curl/curl.h>
 #include "PVRKauth.h"
 #include "p8-platform/threads/threads.h"
-
-using json = nlohmann::json;
 
 struct CURLResp{
 	std::string content;

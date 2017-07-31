@@ -28,7 +28,7 @@
 #include "client.h"
 #include "xbmc_pvr_dll.h"
 #include "PVRIptvData.h"
-#include "PVRRecorder.h"
+//#include "PVRRecorder.h"
 #include "p8-platform/util/util.h"
 
 using namespace ADDON;
@@ -38,12 +38,12 @@ using namespace ADDON;
 #endif
 
 #define TIMEOUT_BUFFER_DOWNLOAD 10     //EN secondes, idéal = temps d'un TS
-#define LOG_LEVEL               LOG_INFO
+#define LOG_LEVEL               LOG_DEBUG
 
 bool           m_bCreated        = false;
 ADDON_STATUS   m_CurStatus       = ADDON_STATUS_UNKNOWN;
 PVRIptvData   *m_data            = NULL;
-PVRRecorder   *m_recorder        = NULL;
+//PVRRecorder   *m_recorder        = NULL;
 bool           m_isRadio         = false;
 PVRIptvChannel m_currentChannel;
 PVRIptvRadio   m_currentRadio;
@@ -106,19 +106,23 @@ extern void log(const addon_log_t logLevel, const std::string module, const char
 bool InitPVR()
 {
   m_data        = new PVRIptvData;
-
   /* On vérifie si on est authentifié et que l'utilisateur n'a pas annulé */
   if(m_data)
-    if(!m_data->checkAPIReady())
+  {
+    bool test = m_data->checkAPIReady();
+    if(m_data->checkAPIReady() == false)
     {
       m_CurStatus = ADDON_STATUS_UNKNOWN;
       return false;
     }
     else
+    {
       m_data->LoadPlayList();
-
-  m_recorder    = new PVRRecorder;
-  return true;
+      return true;
+    }
+  }
+  //m_recorder    = new PVRRecorder;
+  return false;
 }
 
 extern "C" {
@@ -203,7 +207,7 @@ ADDON_STATUS ADDON_GetStatus()
 void ADDON_Destroy()
 {
   delete m_data;
-  delete m_recorder;
+  //delete m_recorder;
   m_bCreated  = false;
   m_CurStatus = ADDON_STATUS_UNKNOWN;
   SAFE_DELETE(GUI);
@@ -584,26 +588,26 @@ time_t GetBufferTimeEnd() {
 
 
 PVR_ERROR GetTimers(ADDON_HANDLE handle) {
-  if(m_recorder)
-    return m_recorder->getTimers(handle);
+  /*if(m_recorder)
+    return m_recorder->getTimers(handle);*/
   return PVR_ERROR_SERVER_ERROR;
 }
 
 PVR_ERROR AddTimer(const PVR_TIMER &timer) {
-  if(m_recorder)
-    return m_recorder->addTimer(timer);
+  /*if(m_recorder)
+    return m_recorder->addTimer(timer);*/
   return PVR_ERROR_SERVER_ERROR;
 }
 
 PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete) {
-  if(m_recorder)
-    return m_recorder->deleteTimer(timer, bForceDelete);
+  /*if(m_recorder)
+    return m_recorder->deleteTimer(timer, bForceDelete);*/
   return PVR_ERROR_SERVER_ERROR;
 }
 
 PVR_ERROR UpdateTimer(const PVR_TIMER &timer) {
-  if(m_recorder)
-    return m_recorder->updateTimer(timer);
+  /*if(m_recorder)
+    return m_recorder->updateTimer(timer);*/
   return PVR_ERROR_SERVER_ERROR;
 }
 
@@ -614,8 +618,8 @@ PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size) {
 }
 
 int GetTimersAmount(void) {
-  if(m_recorder)
-    return m_recorder->getTimersAmount();
+  /*if(m_recorder)
+    return m_recorder->getTimersAmount();*/
   return PVR_ERROR_SERVER_ERROR;
 }
 
