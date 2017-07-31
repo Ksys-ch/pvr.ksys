@@ -566,64 +566,6 @@ bool PVRKsysAPI::sendPinCode()
 }
 
 /*!
-   * !!!! !!!! DEPRECATED !!!! !!!! Cette fonction utilise un TOKEN DE VISIONAGE cette méthode n'est plus supporté pour le moment
-   * Récupère un token de visionnage pour une chaine X
-   * @param channel : numéro de la chaine
-   * @return string : la valeur du view_token ou vide si échec
-*/
-std::string PVRKsysAPI::getNewViewToken(int channel, std::string adultCode)
-{
-  /* On le réinitialise, peut importe la réponse qu'on aura, car il sera plus valide ou pas pour la bonne chaine */
-  p_viewToken = "";
-  log(LOG_DEBUG, "PVRKsysAPI", "Récupération du token de visionnage de la chaine %d", channel);
-
-  struct curl_slist *headers = NULL;
-  std::string buffer;
-  CURLcode code;
-  long http_code = 0;
-  std::string url = getURLKTV("/tv/view_token/" + std::to_string(channel) + "/");
-
-  if(adultCode != "")
-    url = url + adultCode + "/";
-
-  code = requestGET(url, NULL, &buffer, &http_code);
-
-  if((http_code == 200 || http_code == 204))
-  {
-    Json::Value root;
-    Json::Reader reader;
-    reader.parse(buffer, root);
-    p_viewToken = root.get("content", "" ).asString();
-  }
-  else
-  {
-    //Le serveur NE RÉPOND PAS CORRECTEMENT / Impossible de le joindre / ...
-    log(LOG_ERROR, "PVRKsysAPI", "ERR_SERV Impossible de récupérer le token de visionnage de la chaine %d : http_code %d | Response = '%s'", channel, http_code, buffer);
-    XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_SERV Impossible de s'authentifier sur le serveur.");
-  }
-
-  return p_viewToken;
-}
-
-/*!
-   * !!!! !!!! DEPRECATED !!!! !!!! Cette fonction utilise un TOKEN DE VISIONAGE cette méthode n'est plus supporté pour le moment
-   * Retourne l'URL de lecture d'une chaine X
-   * @param channel : numéro de la chaine
-   * @return string : l'URL du stream ou vide si échec
-   * @remark génère un nouveau token de visionnage
-*/
-std::string PVRKsysAPI::getStreamURL(int channel, std::string adultCode)
-{
-  std::string url = "";
-  std::string token = getNewViewToken(channel, adultCode);
-  if(token != "")
-    url = getURLKTV("/tv/play/" + token + "/");
-
-  return url;
-}
-
-
-/*!
    * Retourne l'URL de lecture d'une chaine X
    * @param url : URL de la chaine
    * @return CURLResp : contient le contenu de la réponse http et le httpcode
