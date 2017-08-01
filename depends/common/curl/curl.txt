@@ -1,1 +1,1 @@
-curl http://mirrors.kodi.tv/build-deps/sources/curl-7.50.1.tar.bz2
+curl https://github.com/Ksys-ch/curl/archive/ksys.zip
