@@ -38,7 +38,7 @@
 #include "dialogs/GUIDialogPinCode.h"
 
 #include "libKODI_guilib.h"
-#include "json.hpp"
+#include <json/json.h>
 
 #include "md5.h"
 
@@ -74,7 +74,6 @@
 
 
 using namespace ADDON;
-using json = nlohmann::json;
 
 PVRIptvData::PVRIptvData(void)
 {
@@ -124,7 +123,9 @@ bool PVRIptvData::checkAPIReady(void)
   if(m_api)
   {
     if(m_api->getKAuth()->getJWT().accessToken != "")
+    {
       return true;
+    }
   }
   return false;
 }
@@ -137,11 +138,14 @@ bool PVRIptvData::LoadPlayList(void)
   if(!contentChannels.empty())
   {
     PVRIptvChannel tmpChannel;
-    json j = json::parse(contentChannels);
+
+    Json::Value root;
+		Json::Reader reader;
+		reader.parse(contentChannels, root);
+
     std::string logoPath;
-
-    for (auto& element : j) {
-
+    for ( int index = 0; index < root.size(); ++index )
+    {
       logoPath = "";
 
       tmpChannel.adult          = -1;
@@ -159,59 +163,36 @@ bool PVRIptvData::LoadPlayList(void)
       //A implémenter
       tmpChannel.canPause       = true;
 
-			if (element["id"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.id            = element["id"];
+      tmpChannel.id            = root[index].get("id", 0 ).asUInt();
 
-      if (element["adult"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.adult          = element["adult"];
+      tmpChannel.adult          = root[index].get("adult", 0 ).asUInt();
 
-      if (element["epg"].type() ==  json::value_t::boolean)
-        tmpChannel.epg            = element["epg"];
+      tmpChannel.epg            = root[index].get("epg", false ).asBool();
 
-      if (element["free_timespan"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.free_timespan  = element.value("free_timespan", 0);
+      tmpChannel.free_timespan  = root[index].get("free_timespan", 0 ).asUInt();
 
-      if (element["logo"].type() ==  json::value_t::string)
-      {
-        logoPath = element["logo"];
-        tmpChannel.logo           = ((std::string)(g_strClientPath + "/resources/logos/" + logoPath)).c_str();
-      }
+      logoPath                  = root[index].get("logo", "nopict" ).asString();
+      tmpChannel.logo           = ((std::string)(g_strClientPath + "/resources/logos/" + logoPath)).c_str();
 
-      if (element["name"].type() ==  json::value_t::string)
-        tmpChannel.name           = element["name"];
+      tmpChannel.name           = root[index].get("name", "" ).asString();
 
-      if (element["num_ch"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.num_ch         = element["num_ch"];
+      tmpChannel.num_ch         = root[index].get("num_ch", 0 ).asUInt();
 
-      if (element["num_fr"].type() ==  json::value_t::number_unsigned) {
-        tmpChannel.num_fr         = element["num_fr"];
-        // TODO fix demo, have to switch on extern url
-        std::string n = std::to_string(tmpChannel.num_fr);
-        tmpChannel.logo           = ((std::string)(g_strClientPath + "/resources/logos/" + n +".png")).c_str();
-      }
-      if (element["package"].type() ==  json::value_t::number_unsigned)
-        tmpChannel.package        = element["package"];
+      tmpChannel.num_fr         = root[index].get("num_fr", 0 ).asUInt();;
+      // TODO fix demo, have to switch on extern url
+      std::string n = std::to_string(tmpChannel.num_fr);
+      tmpChannel.logo           = ((std::string)(g_strClientPath + "/resources/logos/" + n +".png")).c_str();
 
-      if (element["poster"].type() ==  json::value_t::string)
-        tmpChannel.poster         = element["poster"];
 
-      if (element["unicast"].type() ==  json::value_t::string)
-      {
-        std::string url           = element["unicast"];
-        tmpChannel.url            = m_api->getURLKTV(url);
-        log(LOG_DEBUG, "PVRIPtvData", "set url %s for %s", tmpChannel.url.c_str(), tmpChannel.name.c_str());
-      }
+      tmpChannel.package        = root[index].get("package", 0 ).asUInt();
 
-      if (element["subscription"].type() ==  json::value_t::string)
-      {
-        std::string tpmSouscription = element["subscription"];
-        if(tpmSouscription == "free")
-          tmpChannel.subscription = true;
-      }
-      else if (element["subscription"].type() ==  json::value_t::boolean)
-      {
-        tmpChannel.subscription = element["subscription"];
-      }
+      tmpChannel.poster         = root[index].get("poster", "" ).asString();
+
+      std::string url           = root[index].get("unicast", "" ).asString();
+      tmpChannel.url            = m_api->getURLKTV(url);
+      log(LOG_DEBUG, "PVRIPtvData", "set url %s for %s", tmpChannel.url.c_str(), tmpChannel.name.c_str());
+
+      tmpChannel.subscription   = root[index].get("poster", false ).asBool();
 
       if (tmpChannel.url.size() == 0)
       {
@@ -226,42 +207,37 @@ bool PVRIptvData::LoadPlayList(void)
   if(!contentChannels.empty())
   {
     PVRIptvRadio tmpRadio;
+    Json::Value root_radio;
+    Json::Reader reader_radio;
+    reader_radio.parse(contentRadios, root_radio);
 
-    json j = json::parse(contentRadios);
-    for (auto& element : j) {
+    std::string logoPath;
 
-          tmpRadio.category       = "";
-          tmpRadio.country        = "";
-          tmpRadio.enable         = "";
-          tmpRadio.id             = 10000; //ON déacale les radios de 10000 pour ne pas avoir le même ID qu'une chaine
-          tmpRadio.logo           = "";
-          tmpRadio.multicast      = "";
-          tmpRadio.name           = "";
-          tmpRadio.region         = "";
-          tmpRadio.url            = "";
-          tmpRadio.canPause       = false;
+    for ( int index = 0; index < root_radio.size(); ++index )
+    {
+      tmpRadio.category       = "";
+      tmpRadio.country        = "";
+      tmpRadio.enable         = "";
+      tmpRadio.id             = 10000; //ON déacale les radios de 10000 pour ne pas avoir le même ID qu'une chaine
+      tmpRadio.logo           = "";
+      tmpRadio.multicast      = "";
+      tmpRadio.name           = "";
+      tmpRadio.region         = "";
+      tmpRadio.url            = "";
+      tmpRadio.canPause       = false;
 
-          if (element["category"].type() ==  json::value_t::string)
-            tmpRadio.category  = element["category"];
-          if (element["country"].type() ==  json::value_t::string)
-            tmpRadio.country   = element["country"];
-          if (element["enable"].type() ==  json::value_t::string)
-            tmpRadio.enable    = element["enable"];
-          if (element["id"].type() ==  json::value_t::number_unsigned)
-            tmpRadio.id        += (int)element["id"];
-          if (element["logo"].type() ==  json::value_t::string)
-            tmpRadio.logo      = element["logo"];
-          if (element["multicast"].type() ==  json::value_t::string)
-            tmpRadio.multicast = element["multicast"];
-          if (element["name"].type() ==  json::value_t::string)
-            tmpRadio.name      = element["name"];
-          if (element["region"].type() ==  json::value_t::string)
-            tmpRadio.region    = element["region"];
-          if (element["url"].type() ==  json::value_t::string)
-            tmpRadio.url       = element["url"];
-          //A implémenter
-          tmpRadio.canPause  = false;
-          m_radios.push_back(tmpRadio);
+      tmpRadio.category  = root_radio[index].get("category", "" ).asString();
+      tmpRadio.country   = root_radio[index].get("country", "" ).asString();
+      tmpRadio.enable    = root_radio[index].get("enable", 0 ).asUInt();
+      tmpRadio.id        += (int)root_radio[index].get("id", 0 ).asUInt();
+      tmpRadio.logo      = root_radio[index].get("logo", "" ).asString();
+      tmpRadio.multicast = root_radio[index].get("multicast", "" ).asString();
+      tmpRadio.name      = root_radio[index].get("name", "" ).asString();
+      tmpRadio.region    = root_radio[index].get("region", "" ).asString();
+      tmpRadio.url       = root_radio[index].get("url", "" ).asString();
+      //A implémenter
+      tmpRadio.canPause  = false;
+      m_radios.push_back(tmpRadio);
     }
   }
 
@@ -457,39 +433,31 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
 
     if(!contentEPG.empty())
     {
-      json j = json::parse(contentEPG);
-      for (auto& element : j[std::to_string(channel.iUniqueId)])
+      Json::Value root;
+      Json::Reader reader;
+      reader.parse(contentEPG, root);
+      Json::Value content = root[std::to_string(channel.iUniqueId)];
+
+      for( Json::Value::iterator itr = content.begin() ; itr != content.end() ; itr++ )
       {
         EPG_TAG tag;
         memset(&tag, 0, sizeof(EPG_TAG));
 
-        if (element["id"].type() ==  json::value_t::number_unsigned)
-          tag.iUniqueBroadcastId          = element.value("id",0);
+        tag.iUniqueBroadcastId          = ((Json::Value)*itr).get("id", 0 ).asUInt();
 
-        if (element["titre"].type() ==  json::value_t::string)
-          tag.strTitle          = XBMC->UnknownToUTF8(((std::string)(element.value("titre",""))).c_str());
+        tag.strTitle          = XBMC->UnknownToUTF8(((Json::Value)*itr).get("titre", "" ).asString().c_str());
 
-        if (element["num"].type() ==  json::value_t::number_unsigned) {
-          tag.iChannelNumber          = element.value(g_strLocationKsys=="CHE"?"num_ch":"num_fr",0);
-        }
+        tag.iChannelNumber          = ((Json::Value)*itr).get(g_strLocationKsys=="CHE"?"num_ch":"num_fr", 0 ).asUInt();
 
-        if (element["dateCompleteDebut"].type() ==  json::value_t::string)
-        {
-          std::string dateStart = (std::string)element.value("dateCompleteDebut","");
-          tag.startTime          = ParseDateTime(dateStart, false);
-        }
+        std::string dateStart = ((Json::Value)*itr).get("dateCompleteDebut", "" ).asString();
+        tag.startTime          = ParseDateTime(dateStart, false);
 
-        if (element["dateCompleteFin"].type() ==  json::value_t::string)
-        {
-          std::string dateEnd = (std::string)element.value("dateCompleteFin","");
-          tag.endTime          = ParseDateTime(dateEnd, false);
-        }
+        std::string dateEnd = ((Json::Value)*itr).get("dateCompleteFin", "" ).asString();
+        tag.endTime          = ParseDateTime(dateEnd, false);
 
-        if (element["description"].type() ==  json::value_t::string)
-          tag.strPlot          = XBMC->UnknownToUTF8(((std::string)(element.value("description",""))).c_str());
+        tag.strPlot          = XBMC->UnknownToUTF8(((Json::Value)*itr).get("description", "" ).asString().c_str());
 
-        if (element["description"].type() ==  json::value_t::string)
-          tag.strPlotOutline          = XBMC->UnknownToUTF8(((std::string)(element.value("description",""))).c_str());
+        tag.strPlotOutline          = XBMC->UnknownToUTF8(((Json::Value)*itr).get("description", "" ).asString().c_str());
 
         tag.strOriginalTitle    = NULL;  // not supported
         tag.strCast             = NULL;  // not supported
@@ -498,13 +466,11 @@ PVR_ERROR PVRIptvData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
         tag.iYear               = 0;     // not supported
         tag.strIMDBNumber       = NULL;  // not supported
 
-        if (element["vignette"].type() ==  json::value_t::string)
-          tag.strIconPath          = XBMC->UnknownToUTF8(((std::string)element.value("vignette","")).c_str());
+        tag.strIconPath          = XBMC->UnknownToUTF8(((Json::Value)*itr).get("vignette", "" ).asString().c_str());
 
         tag.iGenreType          = EPG_GENRE_USE_STRING;
         tag.iGenreSubType       = 0; // not supported
-        if (element["categorieGenerale"].type() ==  json::value_t::string)
-          tag.strGenreDescription  = XBMC->UnknownToUTF8(((std::string)element.value("categorieGenerale","")).c_str());
+        tag.strGenreDescription  = XBMC->UnknownToUTF8(((Json::Value)*itr).get("categorieGenerale", "" ).asString().c_str());
 
         if(tmpChannel->adult == 1)
           tag.iParentalRating     = 18;

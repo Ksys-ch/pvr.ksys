@@ -1,1 +1,1 @@
-curl https://github.com/Gwemox/curl/archive/master.zip
+curl https://github.com/Ksys-ch/curl/archive/ksys-curl-7_54_1.zip

@@ -75,10 +75,12 @@ void PVRKauth::loadJwt(void)
     }
     XBMC->CloseFile(jwtFile);
 
-    json j = json::parse(data);
-    p_jwt.expireAccessTokenDate = j.value("expireAccessTokenDate", 0);
-    p_jwt.accessToken = j.value("accessToken", "");
-    p_jwt.refreshToken = j.value("refreshToken", "");
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(data, root);
+    p_jwt.expireAccessTokenDate = root.get("expireAccessTokenDate",0).asUInt();
+    p_jwt.accessToken = root.get("accessToken", "" ).asString();
+    p_jwt.refreshToken = root.get("refreshToken", "" ).asString();
   }
 }
 
@@ -90,13 +92,12 @@ void PVRKauth::loadJwt(void)
 void PVRKauth::saveJwt(void)
 {
   std::string path = GetUserFilePath(JWT_SAVE_FILE);
-  json j;
+  Json::Value j;
   j["accessToken"] = p_jwt.accessToken;
-  j["expireAccessTokenDate"] = p_jwt.expireAccessTokenDate;
+  j["expireAccessTokenDate"] = (uint)(p_jwt.expireAccessTokenDate);
   j["refreshToken"] = p_jwt.refreshToken;
-
-  std::string data = j.dump();
-
+  Json::FastWriter fastWriter;
+  std::string data = fastWriter.write(j);
   void* jwtFile = XBMC->OpenFileForWrite(path.c_str(), true);
   int byteRead = XBMC->WriteFile(jwtFile, data.c_str(), data.size());
   XBMC->CloseFile(jwtFile);
@@ -189,10 +190,12 @@ PVRJwt PVRKauth::getJWTPassword(std::string usernameDefault)
 
   if(http_code == 200)
   {
-    json j = json::parse(buffer);
-    p_jwt.expireAccessTokenDate = now_date + j.value("expires_in", 0);
-    p_jwt.accessToken = j.value("access_token", "");
-    p_jwt.refreshToken = j.value("refresh_token", "");
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    p_jwt.expireAccessTokenDate = now_date + root.get("expires_in",0).asUInt();
+    p_jwt.accessToken = root.get("access_token", "" ).asString();
+    p_jwt.refreshToken = root.get("refresh_token", "" ).asString();
     saveJwt();
   }
   else
@@ -235,10 +238,12 @@ PVRJwt PVRKauth::getJWTRefreshToken()
 
   if(http_code == 200)
   {
-    json j = json::parse(buffer);
-    p_jwt.expireAccessTokenDate = now_date + j.value("expires_in", 0);
-    p_jwt.accessToken = j.value("access_token", "");
-    p_jwt.refreshToken = j.value("refresh_token", "");
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    p_jwt.expireAccessTokenDate = now_date + root.get("expires_in",0).asUInt();
+    p_jwt.accessToken = root.get("access_token", "" ).asString();
+    p_jwt.refreshToken = root.get("refresh_token", "" ).asString();
     saveJwt();
   }
   else
@@ -248,7 +253,6 @@ PVRJwt PVRKauth::getJWTRefreshToken()
     p_jwt.expireAccessTokenDate = 0;
     return getJWTPassword();
   }
-
   return p_jwt;
 }
 

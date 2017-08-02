@@ -293,15 +293,18 @@ std::string PVRKsysAPI::getChannels(std::string location)
 
     if(http_code == 200)
     {
-      json j = json::parse(buffer);
-      if (j.find("content") != j.end()) {
-          return j["content"].dump();
+      Json::Value root;
+  		Json::Reader reader;
+  		reader.parse(buffer, root);
+      if (root["content"] != Json::nullValue) {
+          Json::FastWriter fastWriter;
+          return fastWriter.write(root["content"]); // dump ???
       }
       else
       {
-        if (j.find("message") != j.end()) {
+        if (root["message"] != Json::nullValue) {
           //LE serveur nous indique une erreur dans message
-          std::string message = j["message"];
+          std::string message = root.get("message", "").asString();
           log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer les chaines : %s", message.c_str());
           XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer les chaines");
         }
@@ -341,15 +344,18 @@ std::string PVRKsysAPI::getRadios()
     code = requestGET(getURLKTV("/radio/map/"), headers, &buffer, &http_code);
     if(http_code == 200)
     {
-      json j = json::parse(buffer);
-      if (j.find("content") != j.end()) {
-        return j["content"].dump();
+      Json::Value root;
+      Json::Reader reader;
+      reader.parse(buffer, root);
+      if (root["content"] != Json::nullValue) {
+        Json::FastWriter fastWriter;
+        return fastWriter.write(root["content"]); // dump ???
       }
       else
       {
-        if (j.find("message") != j.end()) {
+        if (root["message"] != Json::nullValue) {
           //LE serveur nous indique une erreur dans message
-          std::string message = j["message"];
+          std::string message = root.get("message", "" ).asString();
           log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer les radios : %s", message.c_str());
           XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer les radios");
         }
@@ -391,15 +397,18 @@ std::string PVRKsysAPI::getEPGForChannel(int channel, time_t iStart, time_t iEnd
   code = requestGET(getURLKTV("/tv/guide/" + std::to_string(channel) + "/" + timeStampToDate(iStart) + "/" + std::to_string(iEnd-iStart) + "/"), headers, &buffer, &http_code);
   if(http_code == 200)
   {
-    json j = json::parse(buffer);
-    if (j.find("content") != j.end()) {
-      return j["content"].dump();
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    if (root["content"] != Json::nullValue) {
+      Json::FastWriter fastWriter;
+      return fastWriter.write(root["content"]); // dump ???
     }
     else
     {
-      if (j.find("message") != j.end()) {
+      if (root["message"] != Json::nullValue) {
         //LE serveur nous indique une erreur dans message
-        std::string message = j["message"];
+        std::string message = root.get("message", "" ).asString();
         log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de récupérer le guide : %s", message.c_str());
         XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP Impossible de récupérer le guide");
       }
@@ -468,9 +477,9 @@ bool PVRKsysAPI::suscribePackage(int package, std::string pincode)
 */
 bool PVRKsysAPI::checkAdultCode(std::string adultCode)
 {
-  json credentials;
+  Json::Value credentials;
   credentials["pin"] = adultCode.c_str();
-  std::string strCredentials = credentials.dump();
+  std::string strCredentials = credentials.asString();
   struct curl_slist *headers = NULL;
   std::string buffer;
 
@@ -485,10 +494,12 @@ bool PVRKsysAPI::checkAdultCode(std::string adultCode)
   }
   else
   {
-    json j = json::parse(buffer);
-    if (j.find("message") != j.end()) {
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    if (root["message"] != Json::nullValue) {
       //LE serveur nous indique une erreur dans message
-      std::string message = j["message"];
+      std::string message = root.get("message", "").asString();
       log(LOG_ERROR, "PVRKsysAPI", "ERR_RESP Impossible de vérifier le code adulte : %s", message.c_str());
       XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_RESP de vérifier le code adulte");
     }
@@ -553,62 +564,6 @@ bool PVRKsysAPI::sendPinCode()
   }*/
   return false;
 }
-
-/*!
-   * !!!! !!!! DEPRECATED !!!! !!!! Cette fonction utilise un TOKEN DE VISIONAGE cette méthode n'est plus supporté pour le moment
-   * Récupère un token de visionnage pour une chaine X
-   * @param channel : numéro de la chaine
-   * @return string : la valeur du view_token ou vide si échec
-*/
-std::string PVRKsysAPI::getNewViewToken(int channel, std::string adultCode)
-{
-  /* On le réinitialise, peut importe la réponse qu'on aura, car il sera plus valide ou pas pour la bonne chaine */
-  p_viewToken = "";
-  log(LOG_DEBUG, "PVRKsysAPI", "Récupération du token de visionnage de la chaine %d", channel);
-
-  struct curl_slist *headers = NULL;
-  std::string buffer;
-  CURLcode code;
-  long http_code = 0;
-  std::string url = getURLKTV("/tv/view_token/" + std::to_string(channel) + "/");
-
-  if(adultCode != "")
-    url = url + adultCode + "/";
-
-  code = requestGET(url, NULL, &buffer, &http_code);
-
-  if((http_code == 200 || http_code == 204))
-  {
-    json j = json::parse(buffer);
-    p_viewToken = j["content"];
-  }
-  else
-  {
-    //Le serveur NE RÉPOND PAS CORRECTEMENT / Impossible de le joindre / ...
-    log(LOG_ERROR, "PVRKsysAPI", "ERR_SERV Impossible de récupérer le token de visionnage de la chaine %d : http_code %d | Response = '%s'", channel, http_code, buffer);
-    XBMC->QueueNotification(QUEUE_ERROR, "[K-Sys API] ERR_SERV Impossible de s'authentifier sur le serveur.");
-  }
-
-  return p_viewToken;
-}
-
-/*!
-   * !!!! !!!! DEPRECATED !!!! !!!! Cette fonction utilise un TOKEN DE VISIONAGE cette méthode n'est plus supporté pour le moment
-   * Retourne l'URL de lecture d'une chaine X
-   * @param channel : numéro de la chaine
-   * @return string : l'URL du stream ou vide si échec
-   * @remark génère un nouveau token de visionnage
-*/
-std::string PVRKsysAPI::getStreamURL(int channel, std::string adultCode)
-{
-  std::string url = "";
-  std::string token = getNewViewToken(channel, adultCode);
-  if(token != "")
-    url = getURLKTV("/tv/play/" + token + "/");
-
-  return url;
-}
-
 
 /*!
    * Retourne l'URL de lecture d'une chaine X

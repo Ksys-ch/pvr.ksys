@@ -21,12 +21,10 @@
 #pragma once
 
 #include "client.h"
-#include "json.hpp"
+#include <json/json.h>
 #include <curl/curl.h>
 #include "PVRKauth.h"
 #include "p8-platform/threads/threads.h"
-
-using json = nlohmann::json;
 
 struct CURLResp{
 	std::string content;
@@ -52,8 +50,6 @@ public:
 	bool							  checkAdultCode(std::string adultCode);
 	bool							  sendAdultCode(void);
 	bool							  sendPinCode(void);
-	std::string 					  getNewViewToken(int channel, std::string adultCode = "");
-	std::string 					  getStreamURL(int channel, std::string adultCode = "");
 	CURLResp 						  getM3u8Live(std::string url);
 	PVRKauth* 						  getKAuth(void);
 
