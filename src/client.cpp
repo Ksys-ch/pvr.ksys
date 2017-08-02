@@ -38,7 +38,7 @@ using namespace ADDON;
 #endif
 
 #define TIMEOUT_BUFFER_DOWNLOAD 10     //EN secondes, idéal = temps d'un TS
-#define LOG_LEVEL               LOG_DEBUG
+#define LOG_LEVEL               LOG_INFO
 
 bool           m_bCreated        = false;
 ADDON_STATUS   m_CurStatus       = ADDON_STATUS_UNKNOWN;
