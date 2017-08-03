@@ -5,4 +5,7 @@
     <setting id="sep4" label="30050" type="lsep"/>
     <setting id="location_ksys" type="labelenum" label="30051" lvalues="30052|30053" />
   </category>
+  <category label="30060">
+    <setting label="30061" type="bool" id="debug_libcurl" default="false"/>
+  </category>
 </settings>

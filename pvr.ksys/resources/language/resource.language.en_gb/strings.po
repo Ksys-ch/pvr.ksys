@@ -31,3 +31,11 @@ msgstr "Switzerland"
 msgctxt "#30053"
 msgid "FRA"
 msgstr "France"
+
+msgctxt "#30060"
+msgid "Advanced"
+msgstr "Advanced"
+
+msgctxt "#30061"
+msgid "Debug LibCurl"
+msgstr "Debug LibCurl"
