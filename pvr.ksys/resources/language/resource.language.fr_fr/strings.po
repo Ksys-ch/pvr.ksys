@@ -31,3 +31,11 @@ msgstr "CHE"
 msgctxt "#30053"
 msgid "FRA"
 msgstr "FRA"
+
+msgctxt "#30060"
+msgid "Advanced"
+msgstr "Avancé"
+
+msgctxt "#30061"
+msgid "Debug LibCurl"
+msgstr "Debug LibCurl"

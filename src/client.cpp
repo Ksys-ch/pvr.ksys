@@ -56,6 +56,7 @@ std::thread    threadLoadChannel;
  */
 std::string g_strUserPath           = "";
 std::string g_strClientPath         = "";
+bool        g_debug_libcurl         = false;
 
 CHelper_libXBMC_addon   *XBMC         = NULL;
 CHelper_libXBMC_pvr     *PVR          = NULL;
@@ -137,6 +138,9 @@ void ADDON_ReadSettings(void)
   {
       g_strLocationKsys = buffer;
   }
+
+  if (!XBMC->GetSetting("debug_libcurl", &g_debug_libcurl))
+  		g_debug_libcurl = false;
 
   //Valeurs par defauts :
   if(g_strLocationKsys == "")
