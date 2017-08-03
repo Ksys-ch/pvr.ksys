@@ -131,6 +131,10 @@ CURLcode PVRKsysAPI::requestGET(std::string URL, struct curl_slist *headers, std
       }
       //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
+      #ifdef __ANDROID__
+        curl_easy_setopt(curl, CURLOPT_CAINFO, XBMC->TranslateSpecialProtocol("special://xbmc/system/certs/cacert.pem"));
+      #endif
+      
       res = curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
 
       if(authHeader)
@@ -219,7 +223,9 @@ CURLcode PVRKsysAPI::requestPOST(std::string URL, std::string postData, struct c
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
       }
       //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
+      #ifdef __ANDROID__
+        curl_easy_setopt(curl, CURLOPT_CAINFO, XBMC->TranslateSpecialProtocol("special://xbmc/system/certs/cacert.pem"));
+      #endif
       res = curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
 
       if(authHeader)
