@@ -139,15 +139,8 @@ void ADDON_ReadSettings(void)
       g_strLocationKsys = buffer;
   }
 
-  if (XBMC->GetSetting("debug_libcurl", &buffer))
-  {
-    if(buffer == "false")
-      g_debug_libcurl = false;
-    else
-      g_debug_libcurl = true;
-  }
-
-  std::cout << "debug libcurl " << g_debug_libcurl << "\n";
+  if (!XBMC->GetSetting("debug_libcurl", &g_debug_libcurl))
+  		g_debug_libcurl = false;
 
   //Valeurs par defauts :
   if(g_strLocationKsys == "")
