@@ -38,7 +38,9 @@ g_strPasswordKsys
 #ifndef SICK_URL
 #define SICK_URL                 "https://sicktv-api.caps.services"
 #endif
-
+#ifndef FILE_LOG_API_LIBCURL
+#define FILE_LOG_API_LIBCURL     "libcurl_ksys.log"
+#endif
 /*!
    * Fonction static qui est utilisé par CURL pour remplir le buffer avec le contenu d'une page web
    * @param data : tableau de char des données à ajouter dans notre buffer (donc ce qui va être lu)
@@ -113,12 +115,20 @@ CURLcode PVRKsysAPI::requestGET(std::string URL, struct curl_slist *headers, std
     bool result = false;
     CURL *curl;
     CURLcode res;
+    /* open file for writing */
+    FILE *file_debug=NULL;
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 
     if(curl) {
       //SI on veut activer le blabla de CURL
+      if(g_debug_libcurl)
+      {
+        file_debug = fopen(GetUserFilePath(FILE_LOG_API_LIBCURL).c_str(), "a+");   //open the specified file on local host
+        curl_easy_setopt(curl, CURLOPT_STDERR,file_debug);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+      }
       //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
       res = curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
@@ -173,8 +183,10 @@ CURLcode PVRKsysAPI::requestGET(std::string URL, struct curl_slist *headers, std
       curl_easy_cleanup(curl);
     }
 
-    //curl_global_cleanup();
+    if(file_debug)
+      fclose (file_debug);
 
+    //curl_global_cleanup();
     return res;
 }
 
@@ -192,12 +204,20 @@ CURLcode PVRKsysAPI::requestPOST(std::string URL, std::string postData, struct c
     log(LOG_DEBUG, "PVRKsysAPI", "%s -> %s", __FUNCTION__, URL.c_str());
     CURL *curl;
     CURLcode res;
+    /* open file for writing */
+    FILE *file_debug=NULL;
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 
     if(curl) {
       //SI on veut activer le blabla de CURL
+      if(g_debug_libcurl)
+      {
+        file_debug = fopen(GetUserFilePath(FILE_LOG_API_LIBCURL).c_str(), "a+");   //open the specified file on local host
+        curl_easy_setopt(curl, CURLOPT_STDERR, file_debug);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+      }
       //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
       res = curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
@@ -254,6 +274,10 @@ CURLcode PVRKsysAPI::requestPOST(std::string URL, std::string postData, struct c
       }
       curl_easy_cleanup(curl);
     }
+
+    if(file_debug)
+      fclose (file_debug);
+
     //curl_global_cleanup();
     return res;
 }

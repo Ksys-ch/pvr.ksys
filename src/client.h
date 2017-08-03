@@ -49,6 +49,7 @@ extern CHelper_libKODI_guilib  		*GUI;
 extern std::string g_strLocationKsys;
 extern std::string g_strUsernameKsys;
 extern std::string g_strPasswordKsys;
+extern bool g_debug_libcurl;
 
 
 extern std::string PathCombine(const std::string &strPath, const std::string &strFileName);
