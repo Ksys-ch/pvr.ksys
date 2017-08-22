@@ -192,7 +192,7 @@ bool PVRIptvData::LoadPlayList(void)
       tmpChannel.url            = m_api->getURLKTV(url);
       log(LOG_DEBUG, "PVRIPtvData", "set url %s for %s", tmpChannel.url.c_str(), tmpChannel.name.c_str());
 
-      tmpChannel.subscription   = root[index].get("poster", false ).asBool();
+      tmpChannel.subscription   = root[index].get("subscription", false ).asBool();
 
       if (tmpChannel.url.size() == 0)
       {
