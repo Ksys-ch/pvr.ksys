@@ -202,7 +202,6 @@ bool PVRKauth::checkSetupPlayerId(std::string codeSetup)
 
   if(http_code == 200)
   {
-    std::cout << buffer << "\n";
     Json::Value root;
     Json::Reader reader;
     reader.parse(buffer, root);
