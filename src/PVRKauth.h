@@ -23,6 +23,7 @@
 
 #include <json/json.h>
 #include <curl/curl.h>
+#include "dialogs/GUIDialogPlayerID.h"
 
 class PVRKsysAPI;
 
@@ -38,16 +39,21 @@ class PVRKauth
 public:
 	PVRKauth(PVRKsysAPI *api);
 	virtual ~PVRKauth(void);
-	void 					loadJwt(void);
-	void 					saveJwt(void);
-	std::string 			getURLKAuth(std::string path);
-	PVRJwt 					getJWT(void);
-	PVRJwt 					getJWTPassword(std::string usernameDefault = "");
-	PVRJwt 					getJWTRefreshToken(void);
-	void 					setForceRefresh(void);
+	std::string    getPlayerId();
+	std::string    generatePlayerId();
+  bool           checkSetupPlayerId(std::string codePlayer);
+  std::string    getNewSetupCode(std::string playerID);
+  bool           setupPlayerId();
+	void           loadJwt(void);
+	void           saveJwt(void);
+	std::string    getURLKAuth(std::string path);
+	PVRJwt         getJWT(void);
+	PVRJwt         getJWTPassword(std::string usernameDefault = "");
+	PVRJwt         getJWTRefreshToken(void);
+	void           setForceRefresh(void);
 
 private:
-	bool					p_forceRefresh;
-	PVRJwt					p_jwt;
-	PVRKsysAPI	 			*p_api;
+	bool           p_forceRefresh;
+	PVRJwt         p_jwt;
+	PVRKsysAPI     *p_api;
 };

@@ -20,12 +20,16 @@
  */
 
 #include <string>
+#include <thread>
 #include "PVRKauth.h"
 #include "client.h"
 #include "PVRKsysAPI.h"
 
 #define KAUTH_URL       "https://accounts.caps.services"
 #define JWT_SAVE_FILE   ".jwt"
+
+#define PREFIX_PLAYER_ID    "kodi-"
+#define PLAYER_ID_FILE      "player-id"
 
 using namespace ADDON;
 /*!
@@ -53,6 +57,172 @@ PVRKauth::PVRKauth(PVRKsysAPI *api)
 PVRKauth::~PVRKauth(void)
 {
   log(LOG_DEBUG, "PVRPVRKauth", "Destruction");
+}
+
+/*!
+   * Récupère ou génère si il n'existe pas le player ID
+   * @param  /
+   * @return std::string
+*/
+std::string PVRKauth::getPlayerId()
+{
+  std::string path = GetClientFilePath(PLAYER_ID_FILE);
+  if (XBMC->FileExists(path.c_str(), false))
+  {
+    std::string data = "";
+    std::string line;
+    char buffer[4096];
+    void* playerFile = XBMC->OpenFile(path.c_str(), 0);
+    while(XBMC->ReadFileString(playerFile, buffer, 4096))
+    {
+      data.append(buffer);
+    }
+    XBMC->CloseFile(playerFile);
+
+    return data;
+  }
+  else
+  {
+    return generatePlayerId();
+  }
+}
+
+/*!
+   * Génère un player ID aléatoire commencant par PREFIX_PLAYER_ID
+   * @param  /
+   * @return std::string : player id
+*/
+std::string PVRKauth::generatePlayerId()
+{
+  std::string data = PREFIX_PLAYER_ID;
+  const int len = 32;
+  char buffer[len];
+  char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < len; ++i) {
+        buffer[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+    data.append(buffer);
+
+    std::string path = GetClientFilePath(PLAYER_ID_FILE);
+    void* playerFile = XBMC->OpenFileForWrite(path.c_str(), true);
+    int byteRead = XBMC->WriteFile(playerFile, data.c_str(), data.size());
+    XBMC->CloseFile(playerFile);
+
+    return data;
+}
+
+/*!
+   * Lance l'enregistrement du player sur le serveur CAPS
+   * @param  /
+   * @return bool : true si c'est un succès sinon false
+*/
+bool PVRKauth::setupPlayerId()
+{
+  std::string code = getNewSetupCode(getPlayerId());
+  if(code != "-1")
+  {
+    CGUIDialogPlayerID windowPlayerID;
+    windowPlayerID.SetCode(code);
+    windowPlayerID.DoModal();
+    bool processAuthentification = true;
+    while (processAuthentification && !windowPlayerID.isClose()) {
+      windowPlayerID.SetFocusId(windowPlayerID.GetFocusId());
+      processAuthentification = !checkSetupPlayerId(code);
+      usleep(5000000);
+    }
+
+    if(!windowPlayerID.isClose())
+    {
+      windowPlayerID.Close();
+      return true;
+    }
+
+    if(windowPlayerID.isClose())
+      return checkSetupPlayerId(code);
+
+  }
+  else
+  {
+    log(LOG_ERROR, "PVRKsysAPI", "Impossible de récupérer un code pour authentifier le player-id : %s", getPlayerId().c_str());
+    return false;
+  }
+}
+
+/*!
+   * Récupère sur le serveur CAPS un code de setup pour le player
+   * @param string playerID : le code unique du player
+   * @return std::string : le code, retourne "-1" en cas d'erreur
+*/
+std::string PVRKauth::getNewSetupCode(std::string playerID)
+{
+  std::string buffer;
+  CURL *curl;
+  curl = curl_easy_init();
+  curl_easy_cleanup(curl);
+  struct curl_slist *headers = NULL;
+
+  long http_code = 0;
+  CURLcode code = p_api->requestGET(getURLKAuth("/v1/player/" + playerID + "/setup"), headers, &buffer, &http_code, false);
+
+  if(http_code == 200)
+  {
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    return root.get("pin","-1").asString();
+  }
+  else
+  {
+    return "-1";
+  }
+}
+
+/*!
+   * Vérifie qu'un playerID a été authentifié via son CODE
+   * @param  /
+   * @return bool : true si c'est un succès sinon false
+*/
+bool PVRKauth::checkSetupPlayerId(std::string codeSetup)
+{
+  time_t now_date;
+  std::string buffer;
+  CURL *curl;
+  curl = curl_easy_init();
+  curl_easy_cleanup(curl);
+  struct curl_slist *headers = NULL;
+
+  long http_code = 0;
+  CURLcode code = p_api->requestGET(getURLKAuth("/v1/player/" + codeSetup + "/access_token"), headers, &buffer, &http_code, false);
+
+  time(&now_date);
+
+  if(http_code == 200)
+  {
+    std::cout << buffer << "\n";
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(buffer, root);
+    p_jwt.expireAccessTokenDate = now_date + root.get("expires_in",0).asUInt();
+    p_jwt.accessToken = root.get("access_token", "" ).asString();
+    p_jwt.refreshToken = root.get("refresh_token", "" ).asString();
+    saveJwt();
+    return true;
+  }
+  else if(http_code == 419)
+  {
+    //LE code n'a pas encore été validé par l'utilisateur
+    return false;
+  }
+  else
+  {
+      log(LOG_ERROR, "PVRKsysAPI", "Erreur lors de la vérification de l'état du code %s pour autoriser le playerID %s, CODE HTTP %d", codeSetup.c_str(), getPlayerId().c_str(), http_code);
+  }
+
+  return false;
 }
 
 /*!
@@ -124,7 +294,8 @@ PVRJwt PVRKauth::getJWT()
   time(&now_date);
   if(p_jwt.refreshToken == "")
   {
-    return getJWTPassword();
+    setupPlayerId();
+    return p_jwt;
   }
   else if(p_jwt.expireAccessTokenDate <= now_date || p_forceRefresh)
   {
@@ -251,7 +422,7 @@ PVRJwt PVRKauth::getJWTRefreshToken()
     p_jwt.accessToken = "";
     p_jwt.refreshToken = "";
     p_jwt.expireAccessTokenDate = 0;
-    return getJWTPassword();
+    setupPlayerId();
   }
   return p_jwt;
 }

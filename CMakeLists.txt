@@ -41,6 +41,7 @@ set(KSYS_SOURCES src/client.cpp
                  src/PVRIptvData.cpp
                  src/md5.cpp
                  src/PVRKauth.cpp
+                 src/dialogs/GUIDialogPlayerID.cpp
                  src/dialogs/GUIDialogPinCode.cpp)
 #src/PVRRecorder.cpp
 #src/PVRRecorderJob.cpp
@@ -50,6 +51,7 @@ set(KSYS_HEADERS src/client.h
                  src/PVRIptvData.h
                  src/md5.h
                  src/PVRKauth.h
+                 src/dialogs/GUIDialogPlayerID.h
                  src/dialogs/GUIDialogPinCode.h)
 #src/PVRRecorder.h
 #src/PVRRecorderJob.h
