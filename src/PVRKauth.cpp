@@ -183,7 +183,7 @@ std::string PVRKauth::getNewSetupCode(std::string playerID)
 
 /*!
    * Vérifie qu'un playerID a été authentifié via son CODE
-   * @param  /
+   * @param string codeSetup : le code que le serveur CAPS nous a retourné
    * @return bool : true si c'est un succès sinon false
 */
 bool PVRKauth::checkSetupPlayerId(std::string codeSetup)
